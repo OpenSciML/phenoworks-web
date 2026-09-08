@@ -1,12 +1,12 @@
 # Analysis Modules
 
-Analysis modules are reusable, versioned LgoPy components that can be searched, inspected, installed, and removed from PhenoLab.
+Analysis modules are reusable, versioned LgoPy components that can be searched, inspected, installed, and removed from PhenoWorks.
 
 ![Analysis modules](../images/analysis-modules.svg)
 
-PhenoLab treats analysis modules as a modular method layer for research workflows. The platform stays crop-agnostic, while crop-specific measurements are added as LgoPy components that can be packaged, installed, searched, reviewed, and combined in pipelines.
+PhenoWorks treats analysis modules as a modular method layer for research workflows. The platform stays crop-agnostic, while crop-specific measurements are added as LgoPy components that can be packaged, installed, searched, reviewed, and combined in pipelines.
 
-![LgoPy modular analysis extensibility](../images/lgopy-building-blocks.png)
+![LgoPy modular analysis extensibility](../images/lgopy-building-blocks.svg)
 
 ## When to Use
 
@@ -22,58 +22,78 @@ Use analysis modules when you want reusable methods for vegetation indices, cano
 6. Install a zipped module package when adding a new analytical component.
 7. Remove outdated modules when they should no longer be available.
 
+## Processing and feature extraction examples
+
+The repository includes source examples that an administrator can package and
+install. Availability in the UI depends on the installed catalog.
+
+| Block | Input and output |
+| --- | --- |
+| `histogram_equalization` | RGB plot images → enhanced PNG artifacts and a result table |
+| `image_2_hsv` | RGB plot images → HSV-channel JPEG visualizations and a status summary |
+| `ndvi_index` | Multispectral plot assets → vegetation-index measurements |
+
+Use images to inspect a transformation and structured measurements for downstream
+analysis. Check each block's return type before connecting it to the next step;
+saving an image artifact does not mean the block returns an image.
+
+The [LgoPy block tutorial](/blog/building-custom-lgopy-blocks) explains how to
+package a method. The [Agent](phenoworks-agent.md) and [MCP](phenoworks-mcp.md)
+can help discover installed blocks and inspect their inputs. Detailed metadata
+and source inspection through the API currently require administrator access.
+
 ## CLI Usage
 
 Inspect the current LgoPy catalog directory, semantic-search status, embedding model, and pgvector database target:
 
 ```bash
-phenolab analysis-blocks config
+phenoworks analysis-blocks config
 ```
 
 List or search installed blocks:
 
 ```bash
-phenolab analysis-blocks list
-phenolab analysis-blocks search "vegetation index"
-phenolab analysis-blocks search --category spectral --tag ndvi
+phenoworks analysis-blocks list
+phenoworks analysis-blocks search "vegetation index"
+phenoworks analysis-blocks search --category spectral --tag ndvi
 ```
 
 Build and install a local module package:
 
 ```bash
 uv run python scripts/blocks/build_ndvi_package.py
-phenolab analysis-blocks install scripts/dist/ndvi_index
+phenoworks analysis-blocks install scripts/dist/ndvi_index
 ```
 
 Inspect implementation details before using a block:
 
 ```bash
-phenolab analysis-blocks source ndvi_index --version 0.1.0
-phenolab analysis-blocks requirements ndvi_index --version 0.1.0
+phenoworks analysis-blocks source ndvi_index --version 0.1.0
+phenoworks analysis-blocks requirements ndvi_index --version 0.1.0
 ```
 
 Remove a module version when it should no longer be available:
 
 ```bash
-phenolab analysis-blocks remove ndvi_index --version 0.1.0
+phenoworks analysis-blocks remove ndvi_index --version 0.1.0
 ```
 
 ## LgoPy Vector Index
 
-The file-backed catalog stores installed module packages under `PHENOLAB_ANALYSIS_BLOCK_CATALOG_DIR`, defaulting to `~/.phenolab/blocks`.
+The file-backed catalog stores installed module packages under `PHENOWORKS_ANALYSIS_BLOCK_CATALOG_DIR`, defaulting to the `blocks/` directory under `PHENOWORKS_DATA_DIR`.
 
-For semantic search, PhenoLab bridges its PostgreSQL settings into the LgoPy catalog vector-index environment:
+For semantic search, PhenoWorks bridges its PostgreSQL settings into the LgoPy catalog vector-index environment:
 
 | LgoPy variable | Source |
 | --- | --- |
-| `LGOPY_CATALOG_DB_DRIVER` | Derived from `PHENOLAB_DATABASE_URL` or PostgreSQL settings. |
-| `LGOPY_CATALOG_DB_HOST` | `PHENOLAB_DB_HOST` |
-| `LGOPY_CATALOG_DB_PORT` | `PHENOLAB_DB_PORT` |
-| `LGOPY_CATALOG_DB_NAME` | `PHENOLAB_DB_NAME` |
-| `LGOPY_CATALOG_DB_USER` | `PHENOLAB_DB_USER` |
-| `LGOPY_CATALOG_DB_PASSWORD` | `PHENOLAB_DB_PASSWORD` |
+| `LGOPY_CATALOG_DB_DRIVER` | Derived from `PHENOWORKS_DATABASE_URL` or PostgreSQL settings. |
+| `LGOPY_CATALOG_DB_HOST` | `PHENOWORKS_DB_HOST` |
+| `LGOPY_CATALOG_DB_PORT` | `PHENOWORKS_DB_PORT` |
+| `LGOPY_CATALOG_DB_NAME` | `PHENOWORKS_DB_NAME` |
+| `LGOPY_CATALOG_DB_USER` | `PHENOWORKS_DB_USER` |
+| `LGOPY_CATALOG_DB_PASSWORD` | `PHENOWORKS_DB_PASSWORD` |
 
-Set `GOOGLE_API_KEY` to enable Gemini embeddings for semantic discovery of analytical methods. Optionally set `LGOPY_CATALOG_GEMINI_EMBEDDING_MODEL_ID`; otherwise PhenoLab uses `gemini-embedding-001`.
+Set `GOOGLE_API_KEY` to enable Gemini embeddings for semantic discovery of analytical methods. Optionally set `LGOPY_CATALOG_GEMINI_EMBEDDING_MODEL_ID`; otherwise PhenoWorks uses `gemini-embedding-001`.
 
 ## Best Practices
 

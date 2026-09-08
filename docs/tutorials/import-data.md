@@ -36,6 +36,20 @@ The editor tree shows the dataset, plots, and registered assets. Selecting an as
 - Enabling too few modalities for the dataset.
 - Using inconsistent plot names.
 
+## Add documents and prepare for analysis
+
+Attach a field protocol, reference PDF, or manuscript draft to the project or
+study in the editor. Keep these supporting files separate from the plot image
+assets expected by an analysis block.
+
+Before processing, confirm that plot labels and modalities match the files.
+For NDVI, verify that the multispectral images include the required red and
+near-infrared bands and record their order. For RGB processing, inspect a few
+images for lighting and contrast issues.
+
+Continue with [Running a Workflow](run-workflow.md) or ask the
+[Agent](analyze-with-agent.md) to help select a suitable method.
+
 ## Tips
 
 For batch work, keep file names aligned with plot labels before import.

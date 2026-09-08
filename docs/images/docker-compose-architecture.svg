@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
-  <title id="title">PhenoLab Docker Compose Architecture</title>
-  <desc id="desc">Architecture diagram for the PhenoLab Docker Compose stack, showing UI, API, Celery worker, RabbitMQ, PostGIS, tusd uploads, pgAdmin, and shared volumes.</desc>
+  <title id="title">PhenoWorks Docker Compose Architecture</title>
+  <desc id="desc">Architecture diagram for the PhenoWorks Docker Compose stack, showing UI, API, Celery worker, RabbitMQ, PostGIS, tusd uploads, pgAdmin, and shared volumes.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f7fbfc"/>
@@ -38,7 +38,7 @@
 
   <rect width="1440" height="900" fill="url(#bg)"/>
 
-  <text x="70" y="68" class="title">PhenoLab Docker Compose Architecture</text>
+  <text x="70" y="68" class="title">PhenoWorks Docker Compose Architecture</text>
   <text x="70" y="99" class="subtitle">Current service topology with the external Celery worker added to the API, storage, database, and upload flow.</text>
 
   <rect x="58" y="132" width="1324" height="622" class="network"/>
@@ -60,7 +60,7 @@
 
   <rect x="735" y="188" width="276" height="150" class="box-accent"/>
   <text x="765" y="226" class="label">api</text>
-  <text x="765" y="256" class="small">FastAPI phenolab.main:app</text>
+  <text x="765" y="256" class="small">FastAPI phenoworks.main:app</text>
   <text x="765" y="282" class="tiny">Creates records, auth, hooks, operations</text>
   <text x="765" y="304" class="tiny">Queue backend: celery</text>
   <rect x="765" y="318" width="102" height="26" class="badge"/>
@@ -77,16 +77,16 @@
   <rect x="735" y="420" width="276" height="158" class="box-accent"/>
   <text x="765" y="458" class="label">worker</text>
   <text x="765" y="488" class="small">Celery operation worker</text>
-  <text x="765" y="514" class="tiny">uv run celery -A phenolab.workers...</text>
-  <text x="765" y="536" class="tiny">Consumes queue phenolab</text>
+  <text x="765" y="514" class="tiny">uv run celery -A phenoworks.workers...</text>
+  <text x="765" y="536" class="tiny">Consumes queue phenoworks</text>
   <rect x="765" y="552" width="148" height="26" class="badge-warn"/>
   <text x="779" y="570" class="port">new service boundary</text>
 
   <rect x="392" y="420" width="268" height="158" class="box"/>
   <text x="422" y="458" class="label">rabbitmq</text>
   <text x="422" y="488" class="small">Broker for operation tasks</text>
-  <text x="422" y="514" class="tiny">Task: phenolab.run_operation</text>
-  <text x="422" y="536" class="tiny">Default queue: phenolab</text>
+  <text x="422" y="514" class="tiny">Task: phenoworks.run_operation</text>
+  <text x="422" y="536" class="tiny">Default queue: phenoworks</text>
   <rect x="422" y="552" width="102" height="26" class="badge"/>
   <text x="435" y="570" class="port">5672:5672</text>
   <rect x="532" y="552" width="116" height="26" class="badge"/>
@@ -108,7 +108,7 @@
 
   <rect x="86" y="632" width="1218" height="86" class="volume"/>
   <text x="116" y="670" class="label">Persistent volumes and mounted data</text>
-  <text x="116" y="699" class="small">phenolab-data -> /var/lib/phenolab for API and worker; phenolab-postgres, phenolab-rabbitmq, phenolab-pgadmin hold service state; tusd writes chunks under /var/lib/phenolab/.tusd.</text>
+  <text x="116" y="699" class="small">phenoworks-data -> /var/lib/phenoworks for API and worker; phenoworks-postgres, phenoworks-rabbitmq, phenoworks-pgadmin hold service state; tusd writes chunks under /var/lib/phenoworks/.tusd.</text>
 
   <path d="M316 269 C345 269 358 263 392 263" class="arrow"/>
   <text x="326" y="250" class="tiny">open app</text>

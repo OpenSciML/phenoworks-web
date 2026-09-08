@@ -17,16 +17,6 @@ const sidebars: SidebarsConfig = {
     'index',
     {
       type: 'category',
-      label: 'Getting Started',
-      link: {type: 'doc', id: 'getting-started'},
-      items: [
-        'getting-started/installation',
-        'getting-started/configuration',
-        'getting-started/first-project',
-      ],
-    },
-    {
-      type: 'category',
       label: 'Features',
       items: [
         'features/projects',
@@ -35,28 +25,26 @@ const sidebars: SidebarsConfig = {
         'features/analysis-modules',
         'features/analysis-pipelines',
         'features/results-exports',
-        'features/phenolab-agent',
+        'features/scientific-knowledge-base',
+        'features/phenoworks-mcp',
+        'features/phenoworks-agent',
         'features/users-api-keys',
       ],
     },
     {
       type: 'category',
-      label: 'Tutorials',
+      label: 'Getting Started',
       items: [
         'tutorials/first-project',
         'tutorials/import-data',
         'tutorials/configure-settings',
         'tutorials/run-workflow',
         'tutorials/view-export-results',
+        'tutorials/connect-mcp',
+        'tutorials/analyze-with-agent',
+        'tutorials/draft-research-sections',
       ],
     },
-    {
-      type: 'category',
-      label: 'Deployment',
-      items: ['deployment/docker-compose', 'deployment/gcp'],
-    },
-    'faq',
-    'troubleshooting',
   ],
 };
 

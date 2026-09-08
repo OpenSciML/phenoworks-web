@@ -1,11 +1,11 @@
 ---
 slug: website-docs-migration
-title: PhenoLab Documentation Moves to Docusaurus
-authors: [phenolab]
+title: PhenoWorks Documentation Moves to Docusaurus
+authors: [phenoworks]
 tags: [documentation, development]
 ---
 
-The PhenoLab website now uses Docusaurus for documentation, project updates,
+The PhenoWorks website now uses Docusaurus for documentation, project updates,
 release notes, and development notes.
 
 {/* truncate */}

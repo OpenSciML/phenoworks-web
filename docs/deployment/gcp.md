@@ -1,13 +1,13 @@
 # Google Cloud Platform Deployment
 
-Use the GCP deployment when PhenoLab needs managed infrastructure for the API, UI, background worker, metadata database, object storage, and queueing. The deployment in `deployment/gcp/` uses Cloud Run, Cloud SQL, GCS, Pub/Sub, Artifact Registry, Cloud Build, and Terraform.
+Use the GCP deployment when PhenoWorks needs managed infrastructure for the API, UI, background worker, metadata database, object storage, and queueing. The deployment in `deployment/gcp/` uses Cloud Run, Cloud SQL, GCS, Pub/Sub, Artifact Registry, Cloud Build, and Terraform.
 
 ## Current Versions
 
 | Component | Version or setting |
 | --- | --- |
-| PhenoLab backend package | `1.0.0` |
-| PhenoLab UI package | `1.0.0` |
+| PhenoWorks backend package | `1.0.0` |
+| PhenoWorks UI package | `1.0.0` |
 | API/worker Python image | `ghcr.io/astral-sh/uv:python3.11-bookworm` |
 | Terraform | `>= 1.6.0` |
 | Google Terraform provider | `~> 6.0` |
@@ -20,7 +20,7 @@ Use the GCP deployment when PhenoLab needs managed infrastructure for the API, U
 
 The GCP stack maps the local Compose services to managed services:
 
-| PhenoLab responsibility | GCP service |
+| PhenoWorks responsibility | GCP service |
 | --- | --- |
 | API | Cloud Run service built from `deployment/gcp/Dockerfile.api` |
 | UI | Cloud Run service built from `deployment/gcp/Dockerfile.ui` |
@@ -61,8 +61,8 @@ Edit `terraform.tfvars`. At minimum, set:
 ```hcl
 project_id        = "<your-gcp-project-id>"
 database_password = "<database-password>"
-secret_key        = "<phenolab-secret-key>"
-admin_email       = "admin@phenolab.local"
+secret_key        = "<phenoworks-secret-key>"
+admin_email       = "admin@phenoworks.local"
 admin_password    = "<admin-password>"
 nextauth_secret   = "<auth-secret>"
 image_tag         = "latest"
@@ -72,9 +72,9 @@ Image names are centralized in Terraform:
 
 ```hcl
 region                 = "us-central1"
-artifact_repository_id = "phenolab"
-api_image_name         = "phenolab-api"
-ui_image_name          = "phenolab-ui"
+artifact_repository_id = "phenoworks"
+api_image_name         = "phenoworks-api"
+ui_image_name          = "phenoworks-ui"
 ```
 
 Terraform derives deployed images in this shape:
@@ -97,7 +97,7 @@ terraform init
 Create Artifact Registry first:
 
 ```bash
-terraform apply -target=google_artifact_registry_repository.phenolab
+terraform apply -target=google_artifact_registry_repository.phenoworks
 ```
 
 Build and push the API and UI images:
@@ -107,12 +107,12 @@ cd ../../..
 
 gcloud builds submit \
   --config deployment/gcp/cloudbuild.api.yaml \
-  --substitutions _REGION=us-central1,_REPOSITORY=phenolab,_IMAGE_NAME=phenolab-api,_TAG=latest \
+  --substitutions _REGION=us-central1,_REPOSITORY=phenoworks,_IMAGE_NAME=phenoworks-api,_TAG=latest \
   .
 
 gcloud builds submit \
   --config deployment/gcp/cloudbuild.ui.yaml \
-  --substitutions _REGION=us-central1,_REPOSITORY=phenolab,_IMAGE_NAME=phenolab-ui,_TAG=latest \
+  --substitutions _REGION=us-central1,_REPOSITORY=phenoworks,_IMAGE_NAME=phenoworks-ui,_TAG=latest \
   .
 ```
 
@@ -150,11 +150,11 @@ The second apply lets the API generate public TiTiler COG URLs with the final AP
 The Terraform deployment configures the hosted stack with managed GCP backends:
 
 ```bash
-PHENOLAB_UPLOAD_STORE_URI=gs://<bucket>
-PHENOLAB_RESUMABLE_UPLOAD_BACKEND=gcs
-PHENOLAB_OPERATION_QUEUE_BACKEND=celery
-PHENOLAB_CELERY_BROKER_URL=gcpubsub://projects/<project-id>
-PHENOLAB_CELERY_PUBSUB_QUEUE_NAME_PREFIX=phenolab-
+PHENOWORKS_UPLOAD_STORE_URI=gs://<bucket>
+PHENOWORKS_RESUMABLE_UPLOAD_BACKEND=gcs
+PHENOWORKS_OPERATION_QUEUE_BACKEND=celery
+PHENOWORKS_CELERY_BROKER_URL=gcpubsub://projects/<project-id>
+PHENOWORKS_CELERY_PUBSUB_QUEUE_NAME_PREFIX=phenoworks-
 ```
 
 The worker is a Cloud Run service with `worker_min_instances = 1`, always-allocated CPU, and Celery `--concurrency=1` so one worker instance processes one heavy raster task at a time. The default worker sizing is `worker_cpu = "4"` and `worker_memory = "16Gi"`.
@@ -170,12 +170,12 @@ TAG=$(git rev-parse --short HEAD)
 
 gcloud builds submit \
   --config deployment/gcp/cloudbuild.api.yaml \
-  --substitutions _REGION=us-central1,_REPOSITORY=phenolab,_IMAGE_NAME=phenolab-api,_TAG=$TAG \
+  --substitutions _REGION=us-central1,_REPOSITORY=phenoworks,_IMAGE_NAME=phenoworks-api,_TAG=$TAG \
   .
 
 gcloud builds submit \
   --config deployment/gcp/cloudbuild.ui.yaml \
-  --substitutions _REGION=us-central1,_REPOSITORY=phenolab,_IMAGE_NAME=phenolab-ui,_TAG=$TAG \
+  --substitutions _REGION=us-central1,_REPOSITORY=phenoworks,_IMAGE_NAME=phenoworks-ui,_TAG=$TAG \
   .
 ```
 

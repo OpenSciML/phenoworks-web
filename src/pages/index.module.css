@@ -5,7 +5,7 @@
   padding: 4.5rem max(2rem, calc((100vw - 1180px) / 2));
   background:
     linear-gradient(90deg, rgba(7, 58, 44, 0.91) 0%, rgba(10, 77, 56, 0.76) 37%, rgba(10, 77, 56, 0.14) 67%, rgba(10, 77, 56, 0.02) 100%),
-    var(--phenolab-hero-image) right top / cover no-repeat;
+    var(--phenoworks-hero-image) right top / cover no-repeat;
 }
 
 .heroText {
@@ -58,7 +58,7 @@
     padding-block: 3.5rem;
     background:
       linear-gradient(180deg, rgba(7, 58, 44, 0.9) 0%, rgba(7, 58, 44, 0.72) 54%, rgba(7, 58, 44, 0.32) 100%),
-      var(--phenolab-hero-image) right top / cover no-repeat;
+      var(--phenoworks-hero-image) right top / cover no-repeat;
   }
 
 }

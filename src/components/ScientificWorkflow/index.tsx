@@ -18,7 +18,7 @@ export default function ScientificWorkflow(): ReactNode {
   const titleId = `${instanceId}-title`;
   const dialogId = `${instanceId}-details`;
   const dialogTitleId = `${instanceId}-detail-title`;
-  const imageSrc = useBaseUrl('/img/phenolab-scientific-workflow.png');
+  const imageSrc = useBaseUrl('/img/phenoworks-scientific-workflow.png');
 
   /** Open the modal for feature, which supplies its title, capabilities, and example. */
   function showFeature(feature: WorkflowFeature): void {
@@ -30,9 +30,9 @@ export default function ScientificWorkflow(): ReactNode {
     <section className={styles.workflow} aria-labelledby={titleId}>
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>Explore PhenoLab</p>
+          <p className={styles.eyebrow}>Explore PhenoWorks</p>
           <h2 id={titleId}>From data to scientific discovery</h2>
-          <p>Follow the research workflow. Select an icon or feature to explore its capabilities and see how it fits your research.</p>
+          <p>Bring your data together, turn it into meaningful measurements, and work with an AI assistant to analyze results and develop research outputs. Select any feature below to explore how it works and see an example.</p>
         </div>
         <a className={styles.original} href={imageSrc} target="_blank" rel="noreferrer">View original diagram ↗</a>
       </header>
@@ -49,75 +49,77 @@ export default function ScientificWorkflow(): ReactNode {
               <p>{stage.subtitle}</p>
             </div>
 
-            {stage.id === 'knowledge' ? (
-              <>
-                <div className={styles.database} role="group" aria-label="Scientific knowledge layers">
-                  {stage.features.slice(0, 5).map((feature) => (
-                    <WorkflowFeatureButton
-                      key={feature.id}
-                      feature={feature}
-                      dialogId={dialogId}
-                      onSelect={showFeature}
-                      className={styles.databaseLayer}
-                    />
-                  ))}
-                </div>
-                <div className={styles.knowledgeActions}>
-                  {stage.features.slice(5).map((feature) => (
-                    <WorkflowFeatureButton
-                      key={feature.id}
-                      feature={feature}
-                      dialogId={dialogId}
-                      onSelect={showFeature}
-                      className={styles.knowledgeAction}
-                    />
-                  ))}
-                </div>
-              </>
-            ) : stage.id === 'agent' ? (
-              <>
-                <button
-                  type="button"
-                  className={styles.agentHero}
-                  aria-haspopup="dialog"
-                  aria-controls={dialogId}
-                  onClick={() => showFeature(stage.features[0])}>
-                  <WorkflowArtwork name="agent-overview-v5" color className={styles.agentArtwork} />
-                  <span>PhenoLab Agent <span aria-hidden="true">+</span></span>
-                </button>
-                <div className={styles.featureList}>
-                  {stage.features.slice(1).map((feature) => (
-                    <WorkflowFeatureButton
-                      key={feature.id}
-                      feature={feature}
-                      dialogId={dialogId}
-                      onSelect={showFeature}
-                    />
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className={stage.id === 'collection' ? styles.collectionBody : undefined}>
-                <div className={styles.featureList}>
-                  {stage.features.map((feature) => (
-                    <WorkflowFeatureButton
-                      key={feature.id}
-                      feature={feature}
-                      dialogId={dialogId}
-                      onSelect={showFeature}
-                      caption={featureCaptions[feature.id]}
-                      colorArtwork={stage.id === 'analysis'}
-                      className={stage.id === 'analysis' ? styles.analysisFeature : styles.collectionFeature}
-                    />
-                  ))}
-                </div>
-                {stage.id === 'collection' ? (
-                  <div className={styles.collectionIllustration} aria-hidden="true">
-                    <WorkflowArtwork name="multimodal-collection-v3" color className={styles.collectionArtwork} />
+            <div className={styles.stageBody}>
+              {stage.id === 'knowledge' ? (
+                <>
+                  <div className={styles.database} role="group" aria-label="Scientific knowledge layers">
+                    {stage.features.slice(0, 5).map((feature) => (
+                      <WorkflowFeatureButton
+                        key={feature.id}
+                        feature={feature}
+                        dialogId={dialogId}
+                        onSelect={showFeature}
+                        className={styles.databaseLayer}
+                      />
+                    ))}
                   </div>
-                ) : null}
-              </div>
-            )}
+                  <div className={styles.knowledgeActions}>
+                    {stage.features.slice(5).map((feature) => (
+                      <WorkflowFeatureButton
+                        key={feature.id}
+                        feature={feature}
+                        dialogId={dialogId}
+                        onSelect={showFeature}
+                        className={styles.knowledgeAction}
+                      />
+                    ))}
+                  </div>
+                </>
+              ) : stage.id === 'agent' ? (
+                <>
+                  <button
+                    type="button"
+                    className={styles.agentHero}
+                    aria-haspopup="dialog"
+                    aria-controls={dialogId}
+                    onClick={() => showFeature(stage.features[0])}>
+                    <WorkflowArtwork name="agent-overview-v5" color className={styles.agentArtwork} />
+                    <span>PhenoWorks Agent <span aria-hidden="true">+</span></span>
+                  </button>
+                  <div className={styles.featureList}>
+                    {stage.features.slice(1).map((feature) => (
+                      <WorkflowFeatureButton
+                        key={feature.id}
+                        feature={feature}
+                        dialogId={dialogId}
+                        onSelect={showFeature}
+                      />
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className={stage.id === 'collection' ? styles.collectionBody : undefined}>
+                  <div className={styles.featureList}>
+                    {stage.features.map((feature) => (
+                      <WorkflowFeatureButton
+                        key={feature.id}
+                        feature={feature}
+                        dialogId={dialogId}
+                        onSelect={showFeature}
+                        caption={featureCaptions[feature.id]}
+                        colorArtwork={stage.id === 'analysis'}
+                        className={stage.id === 'analysis' ? styles.analysisFeature : styles.collectionFeature}
+                      />
+                    ))}
+                  </div>
+                  {stage.id === 'collection' ? (
+                    <div className={styles.collectionIllustration} aria-hidden="true">
+                      <WorkflowArtwork name="multimodal-collection-v3" color className={styles.collectionArtwork} />
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </div>
           </section>
         ))}
       </div>
@@ -131,12 +133,16 @@ export default function ScientificWorkflow(): ReactNode {
         <span className={styles.loop} aria-hidden="true">↻</span>
         <span>
           <strong>Continuous learning</strong>
-          <span className={styles.learningCaption}>New data, analyses, expert feedback, and literature refine knowledge and workflows.</span>
+          <span className={styles.learningCaption}>Use new data, results, and research insights to improve your next analysis.</span>
         </span>
         <span aria-hidden="true">+</span>
       </button>
 
-      <div className={styles.outcomes} role="group" aria-label="Research outputs">
+      <div className={styles.outputsHeader}>
+        <h3 id={`${instanceId}-outputs`}>Research outputs</h3>
+        <p>Build on your data and analysis to produce new findings, manuscripts, and grant proposals, or continue with downstream analysis.</p>
+      </div>
+      <div className={styles.outcomes} role="group" aria-labelledby={`${instanceId}-outputs`}>
         {outcomes.map((feature) => (
           <WorkflowFeatureButton
             key={feature.id}
@@ -152,7 +158,7 @@ export default function ScientificWorkflow(): ReactNode {
       <dialog ref={dialogRef} id={dialogId} className={styles.dialog} aria-labelledby={dialogTitleId}>
         <div className={styles.detail}>
           <div className={styles.detailTop}>
-            <p className={styles.eyebrow}>Inside PhenoLab</p>
+            <p className={styles.eyebrow}>Inside PhenoWorks</p>
             <button type="button" className={styles.close} aria-label="Close feature details" autoFocus onClick={() => dialogRef.current?.close()}>×</button>
           </div>
           <h2 id={dialogTitleId}>{selected.title}</h2>
@@ -162,16 +168,16 @@ export default function ScientificWorkflow(): ReactNode {
             {selected.capabilities.map((capability) => <li key={capability}>{capability}</li>)}
           </ul>
           <div className={styles.example}>
-            <h3>Try this in your research</h3>
+            <h3>Try this</h3>
             <p>{selected.example}</p>
           </div>
           <Link
             className="button button--primary"
             to={selected.to}
             onClick={() => dialogRef.current?.close()}>
-            Explore the documentation <span aria-hidden="true">→</span>
+            Learn more <span aria-hidden="true">→</span>
           </Link>
-          <p className={styles.detailFooter}>Select another feature on the map to keep exploring.</p>
+          <p className={styles.detailFooter}>Close this window and choose another feature to keep exploring.</p>
         </div>
       </dialog>
     </section>

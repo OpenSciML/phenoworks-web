@@ -1,0 +1,131 @@
+[
+  {
+    "id": "project-leadership",
+    "title": "Project Leadership",
+    "description": "Scientific direction and project coordination.",
+    "members": [
+      {
+        "name": "Muthu Bagavathiannan",
+        "role": "Project Lead / Principal Investigator",
+        "affiliation": "Texas A&M University",
+        "bio": "Professor of Weed Ecology and Management, with research spanning weed science, agronomy, and simulation modeling.",
+        "image": "/img/team/muthu-bagavathiannan.jpg",
+        "position": "Professor of Weed Ecology and Management",
+        "websiteUrl": "",
+        "linkedinUrl": "https://www.linkedin.com/in/muthukumar-bagavathiannan-22b20847/",
+        "githubUrl": "",
+        "googleScholarUrl": "https://scholar.google.com/citations?user=qUomLPAAAAAJ",
+        "universityProfileUrl": "https://soilcrop.tamu.edu/people/bagavathiannan-muthu/"
+      }
+    ]
+  },
+  {
+    "id": "development-lead",
+    "title": "Development Lead",
+    "description": "Software architecture and platform development.",
+    "members": [
+      {
+        "name": "Henry Ruiz",
+        "role": "Lead Developer",
+        "affiliation": "Texas A&M AgriLife Research",
+        "bio": "Creator and lead developer of PhenoWorks and LgoPy, bringing together expertise in generative AI, remote sensing, and full-stack software engineering to develop reusable tools for reproducible data processing and analysis.",
+        "image": "/img/authors/haruiz.jpg",
+        "position": "Research Scientist",
+        "websiteUrl": "https://haruiz.github.io/",
+        "linkedinUrl": "https://www.linkedin.com/in/haruiz/",
+        "githubUrl": "https://haruiz.github.io/",
+        "googleScholarUrl": "https://scholar.google.com/citations?user=QvVPUMoAAAAJ",
+        "universityProfileUrl": ""
+      }
+    ]
+  },
+  {
+    "id": "contributors",
+    "title": "Contributors",
+    "description": "A growing community contributing code, analysis blocks, plug-ins, documentation, and examples.",
+    "members": [
+      {
+        "name": "Vijai Krishna",
+        "role": "Contributor",
+        "affiliation": "Texas A&M University @ Soil and Crop Sciences (SCSC)",
+        "bio": "Contributing to the development of PhenoWorks.",
+        "position": "Graduate Assistant-Research",
+        "websiteUrl": "",
+        "linkedinUrl": "",
+        "githubUrl": "",
+        "googleScholarUrl": "",
+        "universityProfileUrl": ""
+      },
+      {
+        "name": "Navjot Singh",
+        "role": "Contributor",
+        "image": "/img/authors/nav.jpeg",
+        "affiliation": "Texas A&M University @ Soil and Crop Sciences (SCSC)",
+        "bio": "Contributing to the development of PhenoWorks.",
+        "position": "Precision Ag Research Associate | PhD student",
+        "websiteUrl": "",
+        "linkedinUrl": "https://www.linkedin.com/in/navjot-singh-nangia/",
+        "githubUrl": "",
+        "googleScholarUrl": "",
+        "universityProfileUrl": ""
+      },
+      {
+        "name": "Eric Torres",
+        "role": "Contributor",
+        "bio": "Contributing to the development of PhenoWorks.",
+        "position": "",
+        "websiteUrl": "",
+        "linkedinUrl": "",
+        "githubUrl": "",
+        "googleScholarUrl": "",
+        "universityProfileUrl": ""
+      }
+    ]
+  },
+  {
+    "id": "scientific-advisory-team",
+    "title": "Scientific Advisory Team",
+    "description": "Research perspectives that guide scientific applications and future development.",
+    "members": [
+      {
+        "name": "Ambika Chandra",
+        "role": "Scientific Advisor",
+        "affiliation": "Texas A&M AgriLife Research",
+        "bio": "Professor specializing in turfgrass breeding and molecular genetics, including phenotyping for stress tolerance.",
+        "image": "/img/team/ambika-chandra.jpg",
+        "position": "Professor and Assistant Director, Texas A&M AgriLife Research & Extension Dallas",
+        "websiteUrl": "",
+        "linkedinUrl": "",
+        "githubUrl": "",
+        "googleScholarUrl": "https://scholar.google.com/citations?user=HLJlITsAAAAJ",
+        "universityProfileUrl": "https://soilcrop.tamu.edu/people/chandra-ambika/"
+      },
+      {
+        "name": "Murukarthick Jayakodi",
+        "role": "Scientific Advisor",
+        "affiliation": "Texas A&M AgriLife Research",
+        "bio": "Assistant Professor of Plant Genomics, specializing in crop genetics and plant genomics.",
+        "image": "/img/team/murukarthick-jayakodi.jpg",
+        "position": "Assistant Professor of Plant Genomics",
+        "websiteUrl": "",
+        "linkedinUrl": "",
+        "githubUrl": "",
+        "googleScholarUrl": "https://scholar.google.com/citations?user=BHdqafUAAAAJ&hl=en&oi=ao",
+        "universityProfileUrl": "https://soilcrop.tamu.edu/people/jayakodi-murukarthick/"
+      },
+      {
+        "name": "Dirk B. Hays",
+        "role": "Scientific Advisor",
+        "affiliation": "Texas A&M University",
+        "bio": "Professor studying cereal grain development and crop improvement through remote sensing, physiology, and genetics.",
+        "image": "/img/team/dirk-hays.jpg",
+        "position": "Professor of Cereal Grain Development Genetics and Technology",
+        "websiteUrl": "",
+        "linkedinUrl": "",
+        "githubUrl": "",
+        "googleScholarUrl": "https://scholar.google.com/citations?user=Rtg_V-kAAAAJ&hl=en",
+        "universityProfileUrl": "https://soilcrop.tamu.edu/people/hays-dirk-b/"
+      }
+    ]
+  }
+]

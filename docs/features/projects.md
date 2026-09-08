@@ -17,6 +17,13 @@ Create a project when you need a stable workspace for a research program, grant 
 5. Save the project.
 6. Use the share action to add collaborators when needed.
 
+## Keep supporting documents with the project
+
+Use the editor to attach research files such as PDFs, manuscripts, and protocols
+to a project or study. Project membership also controls which datasets and
+results a connected [MCP client](phenoworks-mcp.md) or [Agent](phenoworks-agent.md)
+can access on a user's behalf.
+
 ## Best Practices
 
 - Use clear names that include crop, season, site, or treatment family.

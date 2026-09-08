@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1120" height="620" viewBox="0 0 1120 620" role="img" aria-labelledby="title desc">
-  <title id="title">PhenoLab crop-agnostic configuration and LgoPy modular analysis extensibility</title>
-  <desc id="desc">Diagram showing PhenoLab as a crop-agnostic research platform customized by JSON config and extended with reusable LgoPy analysis modules.</desc>
+  <title id="title">PhenoWorks crop-agnostic configuration and LgoPy modular analysis extensibility</title>
+  <desc id="desc">Diagram showing PhenoWorks as a crop-agnostic research platform customized by JSON config and extended with reusable LgoPy analysis modules.</desc>
   <defs>
     <style>
       .bg { fill: #f6f8fb; }
@@ -26,7 +26,7 @@
   </defs>
 
   <rect class="bg" width="1120" height="620"/>
-  <text x="48" y="58" class="title">PhenoLab: one crop-agnostic research platform, many configured workspaces</text>
+  <text x="48" y="58" class="title">PhenoWorks: one crop-agnostic research platform, many configured workspaces</text>
   <text x="48" y="88" class="subtitle">Configure title and theme in JSON. Extend phenotyping methods with reusable LgoPy analysis modules.</text>
 
   <rect x="48" y="128" width="300" height="370" class="panel"/>
@@ -35,7 +35,7 @@
   <text x="78" y="224" class="body">database model, and job runner</text>
   <text x="78" y="246" class="body">work across crops.</text>
   <rect x="82" y="286" width="220" height="112" class="app" rx="14"/>
-  <text x="112" y="330" class="label">PhenoLab</text>
+  <text x="112" y="330" class="label">PhenoWorks</text>
   <text x="112" y="358" class="body">web platform</text>
   <text x="112" y="382" class="body">crop-agnostic core</text>
 
@@ -45,9 +45,9 @@
   <text x="440" y="224" class="body">to change for a crop-specific</text>
   <text x="440" y="246" class="body">title, subtitle, logo, and theme.</text>
   <rect x="450" y="286" width="220" height="112" class="config" rx="14"/>
-  <text x="476" y="324" class="small">{ "title": "PhenoLab" }</text>
+  <text x="476" y="324" class="small">{ "title": "PhenoWorks" }</text>
   <text x="476" y="352" class="small">{ "theme": { ... } }</text>
-  <text x="476" y="380" class="small">phenolab.config.json</text>
+  <text x="476" y="380" class="small">phenoworks.config.json</text>
 
   <rect x="772" y="128" width="300" height="370" class="panel"/>
   <text x="802" y="170" class="label">3. Add analysis modules</text>

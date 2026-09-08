@@ -24,7 +24,7 @@ function commandsToBash(lines: TerminalLine[]) {
 }
 
 export default function TerminalCommands({
-  title = 'phenolab terminal',
+  title = 'phenoworks terminal',
   lines,
 }: TerminalCommandsProps) {
   const bashCommands = commandsToBash(lines);

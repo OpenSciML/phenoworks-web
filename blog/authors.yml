@@ -1,12 +1,11 @@
-phenolab:
-  name: PhenoLab Contributors
-  title: PhenoLab Project Team
-  url: https://github.com/OpenSciML/phenolab
-  image_url: /img/phenolab-logo.png
+phenoworks:
+  name: PhenoWorks Contributors
+  title: PhenoWorks Project Team
+  url: https://github.com/OpenSciML/phenoworks
+  image_url: /img/phenoworks-logo.svg
 haruiz:
   name: Henry Ruiz
-  title: Phenolab Creator
+  title: PhenoWorks Creator
   url: https://github.com/haruiz
   image_url: /img/authors/haruiz.jpg
-
 

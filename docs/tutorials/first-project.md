@@ -42,3 +42,6 @@ You have one project and one study. The study is available in the editor tree fo
 ## Tips
 
 Use descriptions to capture field, crop, treatment family, and season in plain language.
+
+Next, [import images and supporting documents](import-data.md). Shared project
+access also determines what collaborators can retrieve through the Agent or MCP.

@@ -2,7 +2,7 @@
   <rect width="1280" height="720" fill="#f7faf7"/>
   <rect x="70" y="64" width="1140" height="592" rx="8" fill="#ffffff" stroke="#d9e4dc"/>
   <text x="110" y="118" font-family="Arial" font-size="30" font-weight="700" fill="#173b29">API Keys</text>
-  <text x="110" y="152" font-family="Arial" font-size="16" fill="#64766a">Manage programmatic access to the PhenoLab API.</text>
+  <text x="110" y="152" font-family="Arial" font-size="16" fill="#64766a">Manage programmatic access to the PhenoWorks API.</text>
   <rect x="980" y="96" width="170" height="42" rx="6" fill="#2f7d4f"/>
   <text x="1007" y="123" font-family="Arial" font-size="16" font-weight="700" fill="#ffffff">Create new key</text>
   <line x1="110" y1="220" x2="1150" y2="220" stroke="#d9e4dc"/>

@@ -1,39 +1,42 @@
 # Tutorial: Viewing and Exporting Results
 
-## Objective
+Inspect a completed pipeline, download its outputs, and keep enough context to
+reuse the results in analysis or writing.
 
-Inspect logs, preview artifacts, and export output files from completed processing workflows.
+## Before you start
 
-## Prerequisites
+You need access to the project and a pipeline that has produced artifacts. If
+you have not run one yet, follow [Running a Workflow](run-workflow.md).
 
-- A processing operation has completed.
-- The signed-in user can access the project.
+## Review the run
 
-## Estimated Time
-
-10 minutes.
-
-## Steps
-
-1. Open the surface that owns the completed operation or artifact.
-2. Find the completed operation.
-3. Open the log dialog.
-4. Review progress messages and any warnings.
-5. Open artifacts.
-6. Preview text artifacts when available.
-7. Download output files.
+1. Open **Analysis Pipelines** and find the run for your dataset.
+2. Check its status, then select **View output log**.
+3. Review messages, warnings, and any error details.
+4. Open the run's artifacts and inspect the available files.
+5. Preview supported text content or select **Download artifact**.
 
 ![Pipeline artifacts](../images/results-artifacts.svg)
 
-## Expected Result
+The files depend on the blocks used. An image-processing run may produce PNG or
+JPEG files; a feature-extraction block may return measurements saved as an Excel
+workbook. Other serializable results are stored as JSON.
 
-You have local copies of the output artifacts and enough log context to trace how the result was produced.
+## Keep the context
 
-## Common Mistakes
+Record the dataset, pipeline, block versions, and parameters with your downloaded
+files. Before comparing two tables, check units, plot labels, acquisition dates,
+and whether both runs used comparable methods.
 
-- Exporting artifacts from the wrong operation or dataset.
-- Sharing a JSON summary without the dataset and module version context.
+## Continue with the Agent or MCP
 
-## Tips
+Ask the agent to retrieve the run and explain a specific output:
 
-Use API keys for repeatable exports from scripts.
+> Find the results from pipeline 12 and help me understand the plot measurements.
+
+An MCP client can use `list_artifacts` and `download_artifact`. Downloaded files
+are stored on the MCP host, which may differ from your laptop. The browser's
+download action saves files through your browser.
+
+Use the reviewed evidence for [downstream analysis](../features/results-exports.md)
+or [drafting a research section](draft-research-sections.md).

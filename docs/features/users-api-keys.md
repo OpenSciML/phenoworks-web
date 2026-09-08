@@ -28,9 +28,18 @@ API key secrets are shown once. Store the secret in a secure password manager or
 Use the generated key as a bearer token when calling the API:
 
 ```bash
-curl -H "Authorization: Bearer $PHENOLAB_API_KEY" \
+curl -H "Authorization: Bearer $PHENOWORKS_API_KEY" \
   http://127.0.0.1:9000/api/projects
 ```
+
+## MCP access
+
+An external MCP client can authenticate with a dedicated key through
+`PHENOWORKS_API_KEY`. For a shared HTTP MCP server, per-request forwarding lets
+each caller use their own credential. Keys preserve the user's project access;
+they do not grant administrator privileges automatically.
+
+Follow [Connect an MCP Client](../tutorials/connect-mcp.md) for configuration.
 
 ## Best Practices
 

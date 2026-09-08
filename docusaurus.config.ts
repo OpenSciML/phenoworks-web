@@ -5,9 +5,9 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'PhenoLab',
+  title: 'PhenoWorks',
   tagline: 'Crop phenotyping workspace for field studies, imagery, pipelines, and derived data products.',
-  favicon: 'img/phenolab-logo.png',
+  favicon: 'img/phenoworks-logo.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -15,19 +15,16 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://opensciml.github.io',
-  // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/phenolab-web/',
+  url: 'https://phenoworks.org',
+  // The custom domain serves the website from its root.
+  baseUrl: '/',
   deploymentBranch: "main",
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'OpenSciML',
-  projectName: 'phenolab-web',
+  projectName: 'phenoworks-web',
   trailingSlash: false,
-
   onBrokenLinks: 'throw',
-
   markdown: {
     mermaid: true,
   },
@@ -49,15 +46,15 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           editUrl:
-            'https://github.com/OpenSciML/phenolab-web/tree/main/',
+            'https://github.com/OpenSciML/phenoworks-web/tree/dev/',
         },
         blog: {
           showReadingTime: true,
           routeBasePath: 'blog',
-          blogTitle: 'PhenoLab Blog',
-          blogDescription: 'Project updates, release notes, and development notes from PhenoLab.',
+          blogTitle: 'PhenoWorks Blog',
+          blogDescription: 'Project updates, release notes, and development notes from PhenoWorks.',
           editUrl:
-            'https://github.com/OpenSciML/phenolab-web/tree/main/',
+            'https://github.com/OpenSciML/phenoworks-web/tree/dev/',
           feedOptions: {
             type: ['rss', 'atom'],
             xslt: true,
@@ -74,15 +71,21 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/phenolab-logo.png',
+    docs: {
+      sidebar: {
+        hideable: true,
+      },
+    },
+    image: 'img/phenoworks-hero-banner.png',
     colorMode: {
-      respectPrefersColorScheme: true,
+      defaultMode: 'dark',
+      respectPrefersColorScheme: false,
     },
     navbar: {
-      title: 'PhenoLab',
+      title: 'PhenoWorks',
       logo: {
-        alt: 'PhenoLab logo',
-        src: 'img/phenolab-logo.png',
+        alt: 'PhenoWorks logo',
+        src: 'img/phenoworks-logo.svg',
       },
       items: [
         {
@@ -92,8 +95,9 @@ const config: Config = {
           label: 'Docs',
         },
         {to: '/blog', label: 'Blog', position: 'left'},
+        {to: '/team', label: 'Team', position: 'left'},
         {
-          href: 'https://github.com/OpenSciML/phenolab-web',
+          href: 'https://github.com/OpenSciML/phenoworks-web',
           label: 'GitHub',
           position: 'right',
         },
@@ -110,11 +114,7 @@ const config: Config = {
               to: '/docs/getting-started',
             },
             {
-              label: 'Installation',
-              to: '/docs/getting-started/installation',
-            },
-            {
-              label: 'Deployment',
+              label: 'Docker Compose',
               to: '/docs/deployment/docker-compose',
             },
           ],
@@ -140,21 +140,21 @@ const config: Config = {
           title: 'More',
           items: [
             {
+              label: 'Team',
+              to: '/team',
+            },
+            {
               label: 'Blog',
               to: '/blog',
             },
             {
-              label: 'Troubleshooting',
-              to: '/docs/troubleshooting',
-            },
-            {
               label: 'GitHub',
-              href: 'https://github.com/OpenSciML/phenolab-web',
+              href: 'https://github.com/OpenSciML/phenoworks-web',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} PhenoLab contributors. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} PhenoWorks contributors. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

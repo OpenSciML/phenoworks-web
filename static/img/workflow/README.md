@@ -1,6 +1,6 @@
 # Workflow artwork
 
-These transparent PNGs are extracted from `../phenolab-scientific-workflow.png`.
+These transparent PNGs are extracted from `../phenoworks-scientific-workflow.png`.
 All visible labels and descriptions are rendered by React; these assets contain
 only icons and illustrations.
 

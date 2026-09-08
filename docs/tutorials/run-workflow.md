@@ -1,44 +1,58 @@
 # Tutorial: Running a Workflow
 
-## Objective
+Run a small image-processing pipeline, follow its progress, and inspect the
+outputs. This example uses the bundled **Histogram Equalization** block to
+produce enhanced RGB images and a result table.
 
-Review the retained analysis-pipeline payload flow and use operation-backed processing for active work.
+## Before you start
 
-## Prerequisites
+You need a project with an accessible dataset containing RGB plot assets, an
+installed `histogram_equalization` block, and a running worker. Review a few
+images first. Histogram equalization changes contrast; whether it improves a
+particular dataset needs visual assessment.
 
-- At least one analysis module is installed.
-- The embedded worker or deployment worker path is available.
+## 1. Choose the dataset and method
 
-## Estimated Time
+Open **Analysis Modules** and find **Histogram Equalization**. Confirm its
+version and input requirements. The source example is
+`blocks/image_analysis/histogram_equalization.py`; an administrator can install
+its package if it is missing from the catalog.
 
-10 minutes for review; active pipeline execution is temporarily disabled.
+Open **Analysis Pipelines**, select **Run pipeline**, and use **Dataset & Functions**
+to choose the project, study, dataset, and block version.
 
-## Steps
+## 2. Review the pipeline
 
-1. Open **Analysis Modules**.
-2. Confirm that the required module appears in search.
-3. Open **Analysis Pipelines**.
-4. Select **Run pipeline** if you need to inspect the retained builder surface.
-5. Choose the project, study, and dataset.
-6. Select modules.
-7. Reorder modules if needed.
-8. Configure parameters.
-9. Review the pipeline graph and JSON payload.
-10. Do not rely on `/api/pipelines` for execution in this checkout; it currently returns `501`.
-11. Use upload and file-processing operations for active background processing.
+Continue through **Functions Ordering** and **Parameters**. This example has one
+block and does not need a chain of processing steps. In **Pipeline**, inspect
+the graph and select **Preview JSON** to check the dataset and block definition.
+
+When adding more blocks, verify that each output matches the next input. An
+image saved as an artifact is not necessarily the value returned to the next step.
+
+## 3. Run and monitor
+
+Select **Run pipeline**. Find the new job in the pipeline list and open
+**View output log** to follow its progress. The request is queued for the worker,
+so allow the job to finish before interpreting the outputs.
+
+If it fails, read the error message and confirm the dataset's asset structure,
+file accessibility, and block dependencies before retrying.
+
+## 4. Inspect the result
+
+Open the run's artifacts. The block saves enhanced PNG images and returns a table
+with one row per processed RGB asset. The worker saves DataFrame results as an
+Excel workbook. Compare an enhanced image with its original before applying the
+same workflow more broadly.
 
 ![Analysis pipelines](../images/analysis-pipelines.svg)
 
-## Expected Result
+## Try feature extraction next
 
-The pipeline payload can be reviewed, and active background work should be tracked through operation-backed upload or file-processing flows.
+For multispectral data, an installed `ndvi_index` block can calculate vegetation-index
+statistics. Check the one-based NIR and red band indices against your sensor's
+band order. RGB images alone do not supply a near-infrared band.
 
-## Common Mistakes
-
-- Assuming `/api/pipelines` is active before the operation-backed pipeline path is restored.
-- Stopping the backend or worker path before the queue finishes.
-- Retrying without reading the error log.
-
-## Tips
-
-Use a small dataset first when validating a new module or parameter set once pipeline execution is restored.
+Continue with [Viewing and Exporting Results](view-export-results.md), or run
+an analysis conversationally with the [Agent](analyze-with-agent.md).

@@ -1,0 +1,10 @@
+.card { padding: 1.7rem; border: 1px solid var(--ifm-color-emphasis-200); border-radius: 16px; background: var(--ifm-background-surface-color); }
+.portrait, .initials { width: 160px; height: 160px; border-radius: 50%; margin-bottom: 1.5rem; }
+.portrait { object-fit: cover; object-position: center 25%; }
+.initials { display: flex; align-items: center; justify-content: center; background: var(--ifm-color-emphasis-100); color: var(--ifm-color-primary); font-size: 2.5rem; font-weight: 600; }
+.role { color: var(--ifm-color-primary); font-size: .8rem; font-weight: 650; margin: 0 0 .5rem; }
+.card h3 { font-size: 1.3rem; overflow-wrap: anywhere; margin-bottom: .5rem; }
+.affiliation { font-size: .85rem; margin-bottom: .9rem; }
+.position { font-size: .9rem; margin-bottom: .35rem; }
+.bio { font-size: .95rem; line-height: 1.65; }
+.affiliation, .bio { color: var(--ifm-color-emphasis-700); }

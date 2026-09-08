@@ -1,41 +1,63 @@
 # Tutorial: Configuring Settings
 
-## Objective
+Configure the application, storage, and agent connections for your environment.
+Start from the repository's sample settings and use addresses that are reachable
+from the process that consumes them.
 
-Configure database, data directory, branding, and API access for a local PhenoLab web-platform environment.
+## 1. Configure the workspace
 
-## Prerequisites
+If you do not already have a root `.env`, copy `.env.sample.local`. Set the database
+connection, `PHENOWORKS_DATA_DIR`, and `PHENOWORKS_APP_CONFIG_FILE`. The default
+branding file is `themes/phenoworks.config.json`.
 
-- Repository checkout is available.
-- PostgreSQL is available.
-- You can set environment variables in your shell.
+Keep the database and data directory consistent between the API and worker.
+The block catalog defaults to the `blocks/` directory under the data root, unless
+`PHENOWORKS_ANALYSIS_BLOCK_CATALOG_DIR` overrides it.
 
-## Estimated Time
+## 2. Configure browser connections
 
-15 minutes.
+Set the frontend's API, upload, and agent WebSocket addresses for your setup.
+For host-based local processes, the sample uses:
 
-## Steps
+```dotenv
+NEXT_PUBLIC_PHENOWORKS_API_BASE_URL=http://127.0.0.1:9000/api
+NEXT_PUBLIC_PHENOWORKS_AGENT_WS_BASE_URL=ws://127.0.0.1:9000/api/agent/ws
+NEXT_PUBLIC_PHENOWORKS_TUSD_ENDPOINT=http://localhost:1080/files/
+```
 
-1. Set database variables.
-2. Set `PHENOLAB_DATA_DIR`.
-3. Choose the public app config file.
-4. Start the backend.
-5. Start the frontend.
-6. Open the app and verify the title, subtitle, and theme.
-7. Create an API key when scripted access is needed.
+Compose uses container service addresses internally and configures the frontend
+API proxy separately. For an HTTPS site, the browser's agent connection needs a
+reachable `wss://` endpoint. Rebuild a production UI after changing public build
+settings. Keep `AUTH_SECRET` and `NEXTAUTH_SECRET` stable between restarts.
 
-![API keys](../images/api-keys.svg)
+## 3. Connect the Agent and MCP
 
-## Expected Result
+For an API and MCP server running directly on your host:
 
-The UI uses the selected public config, backend requests target the expected database, and generated API keys can authenticate script requests.
+```dotenv
+PHENOWORKS_AGENT_MCP_URL=http://127.0.0.1:8787/mcp
+PHENOWORKS_AGENT_MODEL_NAME=gemini/gemini-2.5-flash
+GOOGLE_API_KEY=<your-provider-key>
+```
 
-## Common Mistakes
+Inside the bundled Compose API container, use `http://mcp:8787/mcp` instead.
+The API must have the agent package installed. Configure a different model or
+gateway with `PHENOWORKS_AGENT_MODEL_NAME`, `PHENOWORKS_AGENT_LLM_API_BASE`, and
+`PHENOWORKS_AGENT_LLM_API_KEY` where needed.
 
-- Changing `AUTH_SECRET` or `NEXTAUTH_SECRET` between runs and invalidating sessions.
-- Starting Next.js without `NEXT_PUBLIC_PHENOLAB_API_BASE_URL` pointing to the backend.
-- Editing a config file while `.env` still points to another file.
+Follow [Connect an MCP Client](connect-mcp.md) to configure the server's credential
+mode. If you set `PHENOWORKS_AGENT_MCP_ALLOWED_TOOLS`, include the tools needed
+for your workflow, including block description and source review when desired.
+Restart affected services and start a new conversation after tool changes.
 
-## Tips
+## 4. Verify the setup
 
-Verify public config through the backend `/api/config` response when branding does not match what you expect.
+1. Open the application and check its title and theme.
+2. Inspect `/api/config` if the branding differs from your selected file.
+3. Sign in and open a dataset to check storage and visualization.
+4. Ask the Agent to list your accessible projects.
+5. Run a small compatible pipeline to confirm the worker and artifact storage.
+
+For an external assistant or scripted access, create a dedicated
+[API key](../features/users-api-keys.md). A successful chat response alone does
+not verify the MCP connection or the pipeline worker; check those separately.

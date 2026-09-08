@@ -30,6 +30,18 @@ Use the editor to build the plot-level data structure that analysis pipelines co
 | Ancillary panel | Shows weather rows associated with the selected dataset. |
 | Visualization settings | Controls false-color and single-band rendering options. |
 
+## Research documents and extracted features
+
+Attach PDFs, protocols, manuscript drafts, and other supporting files to the
+relevant project or study. Keep experimental context with the data it explains.
+Available previews depend on the file type; storing a document does not
+automatically index its contents for the Agent.
+
+Once the images and plot labels are ready, use [Analysis Pipelines](analysis-pipelines.md)
+to extract features or process images. Saved outputs become part of the
+[Scientific Knowledge Base](scientific-knowledge-base.md), alongside their source
+data and methods.
+
 ## Best Practices
 
 - Use dataset names that describe acquisition date and modality.

@@ -1,277 +1,313 @@
 ---
 slug: building-custom-lgopy-blocks
-title: Building Reusable LgoPy Analytical Blocks for PhenoLab
+title: Building Reusable LgoPy Analytical Blocks for PhenoWorks
 authors: [haruiz]
 tags: [documentation, development]
 ---
 
-import TerminalCommands from '@site/src/components/TerminalCommands';
+An image-processing script works well on your first dataset. Months later,
+a new field campaign brings another batch of images, and you need to repeat
+the analysis. Which version of the script did you use? What settings produced
+those outputs? Could a colleague reproduce the same steps from the files you
+shared?
 
-PhenoLab is designed around reusable analytical building blocks. A custom LgoPy
-block lets a scientist, developer, precision agriculture specialist, or remote
-sensing expert package one method so it can be inspected, shared, and reused
-across phenotyping workflows.
+Reproducible data processing depends on preserving those details alongside the
+method. LgoPy blocks help by packaging a transformation with defined inputs,
+configurable parameters, and versioned code. In this tutorial, we will use a
+simple RGB-to-HSV conversion to show how to read plot images, save derived
+visualizations, and build a processing component that can be shared and reused
+across datasets in PhenoWorks.
 
 {/* truncate */}
 
 ## What is LgoPy?
 
 [LgoPy](https://github.com/OpenSciML/lgopy) is an open-source Python library for
-building multimodal data science pipelines. In PhenoLab, LgoPy provides the
-application layer for turning research code into reusable analysis units that
-can be installed, inspected, searched, and combined across datasets.
+building multimodal data science pipelines. It lets researchers package Python
+methods as blocks that can be installed, inspected, and combined in PhenoWorks.
 
-That matters because phenotyping workflows often mix field observations, UAV or
-satellite imagery, sensor measurements, lab data, treatments, metadata, and
-derived outputs. Instead of hard-coding those methods into one application,
-LgoPy gives PhenoLab a way to package each method as a reusable block with clear
-inputs, outputs, dependencies, and documentation.
+Phenotyping studies often bring together field observations, images, sensor
+readings, and experimental metadata. Each may need a different processing
+method. A LgoPy block gives that method a defined input and output, along with
+its dependencies and documentation.
 
-Think of each data-processing or analysis step as a Lego block. One block may
-calculate a vegetation index, another may validate image quality, another may
-summarize plot statistics, and another may export figures for a report. The
-value comes from making each block focused, documented, and composable, so teams
-can assemble larger phenotyping workflows from smaller tested pieces.
+The idea is similar to building with Lego pieces. One block calculates a
+vegetation index; another summarizes measurements for each plot. When their
+inputs and outputs are compatible, the blocks can form a pipeline that a team
+can reuse across datasets.
 
-## Create an image-processing LgoPy block
+## Example: turn RGB images into HSV visualizations
 
-In this tutorial, we will show you how to create an **LgoPy block** that receives a plot-level dataset item, reads its RGB image assets, converts the images to the HSV color space, and stores the processed results as **PhenoLab artifacts**.
+Our example, `blocks/image_analysis/image_2_hsv.py`, reads the RGB images for a
+plot and converts them to HSV: hue, saturation, and value. It then saves a
+visualization of those channels as a PhenoWorks artifact, a derived file
+associated with the processing run.
 
-The complete reference implementation is available in `blocks/myblocks/image_2_hsv.py`.
+Hue represents color, saturation its intensity, and value its brightness.
+Viewing these channels separately can help you decide how to approach
+segmentation or feature extraction.
 
+To make the channels viewable, the block maps H, S, and V to the red, green,
+and blue channels of a JPEG. The resulting colors show the HSV channel values,
+so they differ from the original photograph. These images are intended for
+visual inspection. For numerical measurements that require exact values, work
+from the original data or a lossless representation rather than the JPEG.
 
-<TerminalCommands
-  title="inspect the example block"
-  lines={[
-    {type: 'input', value: 'sed -n "1,140p" blocks/myblocks/image_2_hsv.py'},
-    {type: 'output', value: 'class Image2HSV(Block):'},
-    {type: 'output', value: '    name = "image_2_hsv"'},
-    {type: 'output', value: '    display_name = "Image to HSV"'},
-  ]}
-/>
+## Read the complete block
 
-## Define block metadata
-
-In this style, a reusable LgoPy block subclasses `Block` and declares its
-catalog metadata as class attributes. These fields are what make the block
-discoverable and understandable in PhenoLab.
+The implementation below comes from `blocks/image_analysis/image_2_hsv.py`:
 
 ```python showLineNumbers
-import logging
 from io import BytesIO
+from typing import Annotated
 
 from lgopy.core import Block
 from PIL import Image as PILImage
-
+import logging
 
 class Image2HSV(Block):
     """Create visible HSV-channel JPEG artifacts from RGB plot images."""
 
     name = "image_2_hsv"
     display_name = "Image to HSV"
-    description = "Convert RGB plot images into visible HSV-channel JPEG artifacts."
+    description = "Convert RGB image to HSV artifacts"
     category = "Image Processing"
-    authors = ["PhenoLab", "Nav"]
-    tags = ["phenolab", "rgb", "hsv", "image-processing", "artifacts"]
+    authors = ["PhenoWorks", "haruiz"]
+    tags = ["phenoworks", "rgb", "image-processing"]
     version = "0.1.0"
     logger = logging.getLogger(__name__)
-```
-
-Key lines:
-
-- Lines 4-5 import the LgoPy base class and the image reader used by the block.
-- Line 8 makes `Image2HSV` a reusable LgoPy block by subclassing `Block`.
-- Lines 11-17 define the searchable catalog metadata that PhenoLab can display.
-- Line 18 creates a module logger so execution details can be traced while processing plots.
-
-The same metadata can also be attached with the registration pattern used in the
-LgoPy examples. This is useful when you want a hub to manage the registered
-block classes explicitly:
-
-```python showLineNumbers
-from typing import Annotated
-
-from lgopy.core import Block, InMemoryBlockHub
-
-
-hub = InMemoryBlockHub()
-
-
-@hub.register(
-    name="image_2_hsv",
-    display_name="Image to HSV",
-    description="Convert RGB plot images into visible HSV-channel JPEG artifacts.",
-    category="Image Processing",
-    authors=["PhenoLab", "Nav"],
-    tags=["phenolab", "rgb", "hsv", "image-processing", "artifacts"],
-    version="0.1.0",
-)
-class Image2HSV(Block):
-    """Create visible HSV-channel JPEG artifacts from RGB plot images."""
 
     def __init__(
-        self,
-        jpeg_quality: Annotated[int, "JPEG quality for saved HSV artifacts"] = 95,
+            self,
+            jpeg_quality: Annotated[int, "JPEG quality for saved HSV artifacts"] = 95,
     ) -> None:
         super().__init__()
-        self.jpeg_quality = jpeg_quality
-```
+        self._jpeg_quality = jpeg_quality
 
-Key lines:
+    def call(self, dataset_item: dict) -> dict:
+        """Convert RGB plot images into HSV-channel visualization artifacts.
 
-- Line 6 creates an in-memory hub that can register and manage block classes.
-- Lines 9-17 attach the same catalog metadata through `@hub.register(...)`.
-- Lines 24-26 use `Annotated[...]` to document a configurable block parameter.
-- Line 29 stores the parameter on the instance so `call(...)` can use it later.
+        Args:
+            dataset_item: Plot dataset item dictionary with plot metadata and assets grouped by modality.
 
-:::tip[Why annotations matter in PhenoLab]
+        Returns:
+            Dictionary with conversion status and processed asset counts.
+        """
+        try:
+            plot_id = dataset_item.get("plot_id")
+            rgb_assets = dataset_item["assets"].get("rgb", [])
 
-Use `Annotated[...]` to describe configurable block parameters. PhenoLab uses
-those annotations to inspect each parameter and render the right UI controls for
-editing values before running the block.
+            for rgb_asset in rgb_assets:
+                rgb_image = PILImage.open(rgb_asset["file_uri"])
+                self.logger.info(f"Processing plot {plot_id} with "
+                            f"RGB asset {rgb_asset['file_uri']}")
+                # Store a visible HSV-channel visualization as JPEG.
+                hsv_image = rgb_image.convert("HSV")
+                hsv_visual = PILImage.merge("RGB", hsv_image.split())
 
-:::
+                buffer = BytesIO()
+                hsv_visual.save(buffer, format="JPEG", quality=self._jpeg_quality)
+                image_bytes = buffer.getvalue()
 
-In this pattern, `@hub.register(...)` defines the block catalog attributes, and
-`Annotated[...]` documents configurable parameters that should appear in the
-block schema. The metadata should be specific enough that another researcher can
-search the catalog and understand what the block does before opening the source
-code.
+                self.artifacts.save_artifact(
+                    f"plot_{plot_id}_hsv_{rgb_asset['id']}.jpg",
+                    data=image_bytes,
+                    artifact_type='plot_hsv_image',
+                    plot_id=plot_id if isinstance(plot_id, int) else None
+                )
+            return {
+                "status": "success",
+                "plot_id": plot_id,
+                "num_rgb_assets": len(rgb_assets),
+            }
+        except Exception as e:
+            self.logger.error(f"Error processing  plot {plot_id}: {e}")
+            raise
 
-## Implement the processing logic
 
-The `call(...)` method is the executable part of the block. In this example,
-PhenoLab passes a `dataset_item` dictionary containing plot metadata and assets
-grouped by modality. The block looks for RGB assets, converts each image to HSV,
-and writes JPEG artifacts.
-
-```python showLineNumbers
-def call(self, dataset_item: dict) -> dict:
-    """Convert RGB plot images into HSV-channel visualization artifacts."""
-    try:
-        plot_id = dataset_item.get("plot_id")
-        rgb_assets = dataset_item["assets"].get("rgb", [])
-
-        for rgb_asset in rgb_assets:
-            rgb_image = PILImage.open(rgb_asset["file_uri"])
-            self.logger.info(
-                f"Processing plot {plot_id} with RGB asset {rgb_asset['file_uri']}"
-            )
-
-            hsv_image = rgb_image.convert("HSV")
-            hsv_visual = PILImage.merge("RGB", hsv_image.split())
-
-            buffer = BytesIO()
-            hsv_visual.save(buffer, format="JPEG", quality=95)
-            image_bytes = buffer.getvalue()
-
-            self.artifacts.save_artifact(
-                f"plot_{plot_id}_hsv_{rgb_asset['id']}.jpg",
-                data=image_bytes,
-                artifact_type="plot_hsv_image",
-                plot_id=plot_id if isinstance(plot_id, int) else None,
-            )
-
-        return {
-            "status": "success",
-            "plot_id": plot_id,
-            "num_rgb_assets": len(rgb_assets),
-        }
-    except Exception as e:
-        self.logger.error(f"Error processing plot {plot_id}: {e}")
-        raise
-```
-
-Key lines:
-
-- Lines 4-5 read the plot identifier and locate RGB assets in the PhenoLab dataset item.
-- Line 8 opens each RGB asset from its `file_uri`.
-- Lines 13-14 convert the image into HSV space and prepare a visible RGB rendering of those channels.
-- Lines 19-24 save the derived JPEG through the artifact store instead of writing an unmanaged file.
-- Lines 27-31 return a compact status object that can be logged or shown in the UI.
-
-This is the key PhenoLab pattern: the block should read from the dataset item,
-do one focused analysis or transformation, save derived outputs through the
-artifact interface, and return a compact status payload.
-
-## Build a reusable block package
-
-The `if __name__ == "__main__"` section makes the script directly buildable.
-Here, `format="zip"` creates a package that can be shared or installed as a
-reusable LgoPy block.
-
-<TerminalCommands
-  title="build the Image2HSV block"
-  lines={[
-    {type: 'input', value: 'uv run python blocks/myblocks/image_2_hsv.py'},
-    {type: 'output', value: 'Created image-2-hsv-block.zip'},
-  ]}
-/>
-
-```python showLineNumbers
-if __name__ == "__main__":
+if __name__ == '__main__':
     Image2HSV.build(output_dir="image-2-hsv-block", format="zip")
 ```
 
-Key lines:
+## Define the method and its settings
 
-- Line 1 keeps packaging available from the command line without running during import.
-- Line 2 builds the block into the `image-2-hsv-block` output and emits a zip package.
+`Image2HSV` inherits from LgoPy's `Block` class. The attributes at the top identify
+it in the catalog: `image_2_hsv` is its name, **Image to HSV** its display label,
+and `0.1.0` its version. The remaining metadata helps researchers find the method
+and understand what it does before reading the code.
 
-## Test with a representative dataset item
+There is one configurable setting: `jpeg_quality`, which defaults to `95`.
+Its `Annotated[...]` declaration supplies a type and description for LgoPy's
+schema. After initializing the base class with `super().__init__()`, the
+constructor stores the chosen quality in `self._jpeg_quality` for use when
+saving the JPEG.
 
-For local development, create a small dictionary that matches the shape PhenoLab
-passes into plot-level blocks: a `plot_id`, plot metadata, and assets grouped by
-modality. The `rgb` asset needs an `id` and a readable `file_uri`.
+When you adapt the example, keep these parameter descriptions and defaults in
+step with the implementation. They help other researchers configure the block
+correctly.
 
-<TerminalCommands
-  title="run a focused local check"
-  lines={[
-    {type: 'input', value: 'python -m blocks.myblocks.image_2_hsv'},
-    {type: 'output', value: 'Build the block package first, then test call(...) with a small RGB image fixture.'},
-  ]}
-/>
+## Understand the input
 
-```python showLineNumbers
-dataset_item = {
+PhenoWorks passes plot-level blocks a dataset item with a plot identifier and
+assets grouped by modality. This block expects RGB assets under `assets["rgb"]`:
+
+```python
+{
     "plot_id": 101,
-    "plot": {"name": "Plot 101"},
     "assets": {
         "rgb": [
-            {
-                "id": 1,
-                "file_uri": "/path/to/plot_101_rgb.jpg",
-            }
+            {"id": 1, "file_uri": "/path/to/plot_101_rgb.jpg"}
         ]
     },
 }
-
-result = Image2HSV().call(dataset_item)
-print(result)
 ```
 
-Key lines:
+Each image needs an `id` and a readable `file_uri`. Because this block opens the
+file directly with Pillow, use a local image path for the example below. Remote
+assets and logical storage keys must first be resolved to files the block can
+read.
 
-- Line 2 supplies the plot identifier that can be attached to generated artifacts.
-- Lines 4-11 mirror the PhenoLab asset grouping pattern, where assets are organized by modality.
-- Line 8 gives the RGB asset an id, which the block uses in the generated artifact filename.
-- Line 9 points to the image file that `PILImage.open(...)` will read.
-- Line 15 runs the block directly with the representative dataset item.
+## Follow the processing step
 
-## Generalize the pattern
+For each RGB asset, `call(...)`:
 
-The same pattern can produce many PhenoLab blocks:
+1. Opens the image with Pillow.
+2. Converts it to HSV and splits the three channels.
+3. Combines those channels into a viewable RGB image.
+4. Encodes the visualization as a JPEG using `self._jpeg_quality`.
+5. Saves the bytes through `self.artifacts.save_artifact(...)`.
 
-- `Image2HSV` converts RGB images into HSV visualization artifacts.
-- `ImageChannelStats` computes per-channel summary statistics for RGB images.
-- `PlotInfo` returns plot-level metadata and asset summaries.
+A file named `plot_101_hsv_1.jpg` records both the plot and source asset identifiers.
+The artifact has the type `plot_hsv_image`; when the plot identifier is an integer,
+the block also passes it to the artifact store. The original image stays intact.
 
-For a new block, keep the unit of work focused. Choose one data-processing or
-analysis step, declare useful metadata, accept the PhenoLab dataset item shape,
-write important outputs as artifacts, and return a small result object that can
-be logged or shown in the UI.
+After processing, the block returns `status`, `plot_id`, and `num_rgb_assets`.
+An empty RGB list produces a successful result with a count of zero. If processing
+fails, the block logs the error and raises it to the caller.
 
-Custom LgoPy blocks are where PhenoLab becomes collaborative. Scientists bring
-the research question, developers bring robust packaging and testing, and domain
-experts bring the remote-sensing and precision-agriculture methods needed to
-build high-throughput phenotyping workflows.
+This return value matters when you build a pipeline. The JPEG is saved through
+the artifact store, while `call(...)` returns a status dictionary. A later step
+must accept that dictionary or retrieve the saved image; a step expecting a plot
+dataset item cannot use the summary directly.
+
+## Check the block locally
+
+You can test the block without a database or a running PhenoWorks server.
+LgoPy provides in-memory artifact and metadata stores. Its artifact store exposes
+`save(...)`, while this block calls PhenoWorks' `save_artifact(...)` method, so a
+small adapter connects the two.
+
+The following example creates a temporary RGB image, runs the block, and checks
+the generated JPEG. Run it from the repository root in the project's Python
+environment:
+
+```python
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from lgopy.core.stores import InMemoryArtifactStore, InMemoryMetadataStore
+from PIL import Image as PILImage
+
+from blocks.image_analysis.image_2_hsv import Image2HSV
+
+
+class TestArtifactStore(InMemoryArtifactStore):
+    """Store artifact bytes in memory for local block tests."""
+
+    def save_artifact(
+        self, key: str, data: bytes, **attributes: object
+    ) -> None:
+        """Save an artifact without database persistence.
+
+        Args:
+            key: Artifact name used to retrieve the stored bytes.
+            data: Serialized artifact bytes.
+            **attributes: Database-specific attributes ignored by this test store.
+        """
+        self.save(key, data)
+
+
+artifacts = TestArtifactStore()
+metadata = InMemoryMetadataStore()
+
+block = Image2HSV()
+block.artifacts = artifacts
+block.metadata = metadata
+
+with TemporaryDirectory() as directory:
+    image_path = Path(directory) / "rgb.jpg"
+    PILImage.new("RGB", (32, 32), color=(80, 150, 40)).save(image_path)
+
+    result = block.call({
+        "plot_id": 101,
+        "plot": {"name": "Plot 101"},
+        "assets": {
+            "rgb": [{"id": 1, "file_uri": str(image_path)}],
+        },
+    })
+
+metadata.set("test.result", result)
+print(result)
+print("Artifacts:", list(artifacts.all()))
+print("Metadata:", metadata.all())
+
+with PILImage.open(artifacts.as_bytes_io("plot_101_hsv_1.jpg")) as image:
+    assert image.format == "JPEG"
+    assert image.size == (32, 32)
+```
+
+The test adapter retains the JPEG bytes but ignores database-specific attributes
+such as `artifact_type` and `plot_id`. PhenoWorks supplies its own adapter during
+pipeline execution to record those associations. Both test stores keep their
+contents only in memory; the temporary input image is removed after processing.
+
+`Image2HSV` does not write metadata itself. The example explicitly stores its
+result under `test.result` to demonstrate the metadata store. To try a real image,
+replace the temporary-image setup with an existing local path.
+
+For this single-image example, a successful call saves the visualization and
+returns:
+
+```python
+{"status": "success", "plot_id": 101, "num_rgb_assets": 1}
+```
+
+## Build and install the block
+
+From the repository root, run the example's build entry point:
+
+```bash
+uv run python blocks/image_analysis/image_2_hsv.py
+```
+
+The `__main__` section calls
+`Image2HSV.build(output_dir="image-2-hsv-block", format="zip")`, creating a
+package directory and a ZIP archive alongside it. The builder can replace an
+existing output directory, so keep your source files elsewhere.
+
+Install the generated ZIP from **Analysis Modules**, or install the package
+directory with the CLI:
+
+```bash
+phenoworks analysis-blocks install image-2-hsv-block
+phenoworks analysis-blocks source image_2_hsv --version 0.1.0
+phenoworks analysis-blocks requirements image_2_hsv --version 0.1.0
+```
+
+Once installed, inspect the package and its requirements in PhenoWorks. To
+produce the visualizations, select a compatible dataset, set `jpeg_quality`,
+and run the block in a dataset pipeline. The build command only packages the
+method. The current script also runs the local smoke test after building;
+processing a dataset starts when you run the installed block in a pipeline.
+
+## Reuse the pattern for feature extraction
+
+The same structure can support a vegetation-index calculation, a canopy-cover
+measurement, or a summary of image-channel statistics. The processing method
+changes, but the block still reads a defined input, saves its outputs, and
+returns a result that other code can use.
+
+Let the next research task guide the output format. Images support visual
+inspection; measurements and tables support further analysis. Clear input and
+output descriptions make it easier for another researcher to connect your block
+to a pipeline and apply the method to a new dataset.

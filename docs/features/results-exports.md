@@ -1,32 +1,43 @@
 # Results and Exports
 
-PhenoLab records generated outputs as artifacts linked back to datasets, plots, and processing workflows. Pipeline-specific outputs are retained in the UI model, but `/api/pipelines` is temporarily disabled in this checkout.
+PhenoWorks keeps generated outputs linked to the dataset, plot, and pipeline
+that produced them. These files are the starting point for further analysis,
+interpretation, figures, and research writing.
 
 ![Pipeline artifacts](../images/results-artifacts.svg)
 
-## Output Types
+## What a run can produce
 
-| Output | Description |
+| Output | Use |
 | --- | --- |
-| Artifacts | JSON summaries, previews, masks, tables, logs, or other generated files. |
-| Operation logs | Runtime messages appended while the worker runs. |
+| Images and masks | Inspect transformations or review image-processing results |
+| Feature tables | Compare measurements across plots, dates, or treatments |
+| JSON summaries | Review structured results and processing metadata |
+| Run logs | Follow execution and investigate errors |
+| Method records | Trace the pipeline definition and processing context |
 
-## Step-by-Step Usage
+Outputs depend on the selected blocks. The pipeline worker saves returned
+DataFrames as Excel workbooks and other serializable results as JSON. Blocks
+can also save additional artifacts, such as enhanced images.
 
-1. Open the surface that owns the completed operation or artifact.
-2. Locate the completed operation.
-3. Open logs to confirm runtime behavior.
-4. Select the artifact action.
-5. Preview text-based artifacts such as JSON or logs.
-6. Download binary or tabular artifacts.
+## Find and download results
 
-## Tips
+1. Open **Analysis Pipelines** and find the relevant run.
+2. Check its status and **View output log**.
+3. Open its artifacts and inspect their details.
+4. Preview supported text content or download the output file.
+5. Retain the dataset, run, method version, and parameter context with exported results.
 
-- Keep operation, file, and dataset names aligned so exported files are easy to trace.
-- Preview JSON artifacts before downloading to confirm the expected result.
-- Use API keys for scripted retrieval when exporting many outputs.
+## Use the results
 
-## Limitations
+Download feature tables for notebooks or statistical software, or ask the
+[PhenoWorks Agent](phenoworks-agent.md) to retrieve available outputs and help
+interpret them. It can also help draft preliminary-data sections for manuscripts
+and grant proposals from selected evidence.
 
-- Only text-like artifacts are previewed directly in the dialog.
-- Large binary files should be downloaded rather than opened in the browser.
+[MCP](phenoworks-mcp.md) exposes `list_artifacts` and `download_artifact` for
+compatible clients. Downloads are written on the MCP host; a remote client may
+need shared storage or another transfer step to access those files.
+
+See [Viewing and Exporting Results](../tutorials/view-export-results.md) and
+[Draft Research Sections](../tutorials/draft-research-sections.md).

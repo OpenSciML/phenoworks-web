@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="Annotated Studies page placeholder">
   <rect width="1280" height="720" fill="#f7faf7"/>
   <rect x="0" y="0" width="280" height="720" fill="#ffffff" stroke="#d9e4dc"/>
-  <text x="36" y="56" font-family="Arial" font-size="28" font-weight="700" fill="#214d35">PhenoLab</text>
+  <text x="36" y="56" font-family="Arial" font-size="28" font-weight="700" fill="#214d35">PhenoWorks</text>
   <text x="36" y="112" font-family="Arial" font-size="18" fill="#6b7f72">Projects</text>
   <text x="36" y="154" font-family="Arial" font-size="18" fill="#3b6b50">Studies</text>
   <rect x="330" y="72" width="860" height="92" rx="8" fill="#ffffff" stroke="#d9e4dc"/>

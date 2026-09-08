@@ -1,6 +1,6 @@
 # Getting Started
 
-This section gets a new local PhenoLab web-platform checkout to the first usable study workspace.
+This section gets a new local PhenoWorks web-platform checkout to the first usable study workspace.
 
 ## Quick Path
 
@@ -18,8 +18,8 @@ This section gets a new local PhenoLab web-platform checkout to the first usable
 | Python | Python 3.11 or newer. |
 | Backend | FastAPI, SQLAlchemy, Pydantic, LgoPy, lgopy-catalog, Celery/RabbitMQ support, and storage dependencies from `pyproject.toml`. The backend runs locally today and is intended to move to cloud infrastructure later. |
 | Frontend | Node.js and the package manager used by the `ui/` workspace. |
-| Database | PostgreSQL through `PHENOLAB_DB_*` settings, or an explicit PostgreSQL `PHENOLAB_DATABASE_URL`. |
-| Storage | A writable `PHENOLAB_DATA_DIR` for uploads, assets, artifacts, analysis modules, and logs. |
+| Database | PostgreSQL through `PHENOWORKS_DB_*` settings, or an explicit PostgreSQL `PHENOWORKS_DATABASE_URL`. |
+| Storage | A writable `PHENOWORKS_DATA_DIR` for uploads, assets, artifacts, analysis modules, and logs. |
 
 ## Launch Commands
 
@@ -48,8 +48,8 @@ make dev-ui
 
 | User | Email | Password |
 | --- | --- | --- |
-| Administrator | `admin@phenolab.local` | `phenolab-admin` |
-| Collaborator demo user | `collaborator@phenolab.local` | `phenolab-collab` |
+| Administrator | `admin@phenoworks.local` | `phenoworks-admin` |
+| Collaborator demo user | `collaborator@phenoworks.local` | `phenoworks-collab` |
 
 :::warning
 
@@ -59,6 +59,6 @@ Replace default credentials and secrets before exposing the app outside a local 
 
 ## Next Steps
 
-- Install the application: [Installation](getting-started/installation.md)
-- Configure runtime settings: [Configuration](getting-started/configuration.md)
-- Create a study workspace: [First Project](getting-started/first-project.md)
+- Install the application: [Docker Compose deployment](deployment/docker-compose.md)
+- Configure runtime settings: [Configuration](tutorials/configure-settings.md)
+- Create a study workspace: [First Project](tutorials/first-project.md)

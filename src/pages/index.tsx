@@ -7,33 +7,36 @@ import Heading from '@theme/Heading';
 import ScientificWorkflow from '@site/src/components/ScientificWorkflow';
 import styles from './index.module.css';
 
-/** Render the PhenoLab homepage and its interactive capability map. */
+/** Render the PhenoWorks homepage and its interactive capability map. */
 export default function Home(): ReactNode {
-  const logoSrc = useBaseUrl('/img/phenolab-logo.png');
+  const logoSrc = useBaseUrl('/img/phenoworks-logo.svg');
   const heroStyle = {
-    '--phenolab-hero-image': `url("${useBaseUrl('/img/phenolab-hero-banner.png')}")`,
+    '--phenoworks-hero-image': `url("${useBaseUrl('/img/phenoworks-hero-banner.png')}")`,
   } as CSSProperties;
 
   return (
     <Layout
-      title="PhenoLab"
-      description="PhenoLab documentation for crop phenotyping studies, imagery, pipelines, and deployment.">
+      title="PhenoWorks"
+      description="PhenoWorks documentation for crop phenotyping studies, imagery, pipelines, and deployment.">
       <main>
         <section className={styles.hero} style={heroStyle}>
           <div className={styles.heroText}>
             <img
               className={styles.logo}
               src={logoSrc}
-              alt="PhenoLab logo"
+              alt="PhenoWorks logo"
             />
             <Heading as="h1" className={styles.title}>
-              PhenoLab
+              PhenoWorks
             </Heading>
             <p className={styles.subtitle}>
               An agentic-first crop phenotyping platform that turns multi-sensor agricultural data into a searchable scientific knowledge base using modular, AI-powered analysis pipelines and intelligent agents that help researchers analyze data, uncover insights, and accelerate discovery.
             </p>
             <div className={styles.actions}>
-              <Link className="button button--primary button--lg" to="/docs/getting-started">
+              <Link className="button button--primary button--lg" href="https://docs.google.com/forms/d/e/1FAIpQLSfs6dAI3IQofL37Zmodcbr3v7B1f0_09GoUnwPrqVkgOdvf6g/viewform">
+                Express Interest
+              </Link>
+              <Link className="button button--secondary button--lg" to="/docs/tutorials/first-project">
                 Get Started
               </Link>
               <Link className="button button--secondary button--lg" to="/docs/">
