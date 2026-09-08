@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([["3220"],{1912(e){e.exports=JSON.parse('{"blogBasePath":"/phenoworks-web/blog","blogTitle":"PhenoWorks Blog","authorsListPath":"/phenoworks-web/blog/authors"}')}}]);
