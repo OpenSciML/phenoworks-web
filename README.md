@@ -1,8 +1,8 @@
 # PhenoLab Website
 
 This Docusaurus site publishes the PhenoLab documentation that was migrated from
-the MkDocs source tree in `../mkdocs`. It also includes a blog for project
-updates, release notes, and development notes.
+the previous documentation source. It also includes a blog for project updates,
+release notes, and development notes.
 
 ## Local Development
 

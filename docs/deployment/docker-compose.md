@@ -22,6 +22,7 @@ Compose starts:
 | Service | Purpose | Local endpoint |
 | --- | --- | --- |
 | `api` | FastAPI backend | `http://localhost:9000` |
+| `mcp` | PhenoLab tools with per-request authentication | `http://localhost:8787/mcp` |
 | `ui` | Next.js app | `http://localhost:3000` |
 | `worker` | Celery operation worker | internal service |
 | `db` | PostgreSQL 16 with PostGIS and pgvector | `localhost:5433` |
@@ -31,6 +32,20 @@ Compose starts:
 | `pgadmin` | Database admin UI | `http://localhost:5050` |
 
 API documentation is available at `http://localhost:9000/api/docs`.
+
+Both stacks install `phenolab-agent` in the API and run `phenolab-mcp` in a separate
+environment. The agent connects to `http://mcp:8787/mcp`; MCP forwards the user's
+credential to `http://api:9000/api`. Leave `PHENOLAB_AGENT_MCP_URL` unset or blank
+to use this default, or supply a URL reachable from the API container. The
+`127.0.0.1` URL in `.env.sample.local` is for running outside Docker and must be
+replaced when using Compose. Model and gateway settings are identical in both
+stacks: `PHENOLAB_AGENT_MODEL_NAME`, `PHENOLAB_AGENT_LLM_API_BASE`, and
+`PHENOLAB_AGENT_LLM_API_KEY`; Gemini can also use `GOOGLE_API_KEY`.
+
+MCP downloads persist in the `phenolab-agent-workspaces` volume. Restart the
+development MCP service after source changes; rebuild production images after
+package changes. Start a new chat to refresh tool discovery. These stacks share
+a Compose project name and volumes, so run one at a time.
 
 ## Command runner
 

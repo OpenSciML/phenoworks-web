@@ -4,31 +4,10 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 
+import ScientificWorkflow from '@site/src/components/ScientificWorkflow';
 import styles from './index.module.css';
 
-const platformFeatures = [
-  {
-    title: 'Research workspace',
-    body: 'Organize projects, studies, datasets, plots, field observations, imagery, metadata, treatments, and supporting files.',
-    to: '/docs/features/projects',
-  },
-  {
-    title: 'Reusable LgoPy pipelines',
-    body: 'Bring scientists, developers, precision agriculture specialists, and remote-sensing experts together to create and share reusable analytical modules and algorithms for reproducible, scalable, high-throughput phenotyping workflows.',
-    to: '/docs/features/analysis-pipelines',
-  },
-  {
-    title: 'Scientific knowledge base',
-    body: 'Keep datasets, features, figures, tables, models, statistics, methods, provenance, and literature connected.',
-    to: '/docs/#software-architecture',
-  },
-  {
-    title: 'PhenoLab Agent',
-    body: 'Use scientific context to help process, analyze, and interpret data for discovery, downstream analysis, manuscripts, and proposals.',
-    to: '/docs/#software-architecture',
-  },
-];
-
+/** Render the PhenoLab homepage and its interactive capability map. */
 export default function Home(): ReactNode {
   const logoSrc = useBaseUrl('/img/phenolab-logo.png');
   const heroStyle = {
@@ -65,21 +44,7 @@ export default function Home(): ReactNode {
         </section>
 
         <section className={styles.workflowSection}>
-          <div className={styles.workflowHeader}>
-            <Heading as="h2">Platform Features</Heading>
-            <p>
-              High-level components for moving from field data to reusable analysis,
-              scientific interpretation, and research outputs.
-            </p>
-          </div>
-          <div className={styles.workflowGrid}>
-            {platformFeatures.map((feature) => (
-              <Link className={styles.workflowCard} to={feature.to} key={feature.title}>
-                <Heading as="h3">{feature.title}</Heading>
-                <p>{feature.body}</p>
-              </Link>
-            ))}
-          </div>
+          <ScientificWorkflow />
         </section>
       </main>
     </Layout>

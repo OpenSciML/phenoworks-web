@@ -35,6 +35,7 @@ const sidebars: SidebarsConfig = {
         'features/analysis-modules',
         'features/analysis-pipelines',
         'features/results-exports',
+        'features/phenolab-agent',
         'features/users-api-keys',
       ],
     },

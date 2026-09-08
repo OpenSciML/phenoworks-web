@@ -1,0 +1,21 @@
+.artwork, .glyph {
+  display: block;
+  flex-shrink: 0;
+  width: 42px;
+  height: 46px;
+  object-fit: contain;
+}
+.glyph {
+  background: currentColor;
+  mask-image: var(--artwork-url);
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+}
+
+.artwork, :global(.markdown) .artwork {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}

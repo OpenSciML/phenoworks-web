@@ -1,0 +1,7 @@
+# PhenoLab Agent illustration
+
+Created with the built-in imagegen tool on 2026-09-08. Saved without modification to `../static/img/workflow/agent-overview-v2.png` and used by the interactive ScientificWorkflow component. The original agent asset remains available.
+
+## Final prompt
+
+Use case: stylized-concept. Asset type: PhenoLab Agent illustration for a scientific crop-phenotyping software workflow card. Create a polished, professional 3D research-assistant robot, approachable and intelligent rather than toy-like. Compact upper-body three-quarter portrait, ivory ceramic shell, brushed metal joints, deep forest-green accents, dark glass face with two softly illuminated mint eyes. One articulated hand supports a small living green seedling with visible delicate roots, while the other interacts with a small translucent teal analysis panel with a simple unlabeled chart and connected evidence nodes. Make the robot the dominant readable silhouette, plant and analysis panel secondary. Rich tactile materials, precise industrial design, restrained scientific editorial style, crisp studio lighting with enough separation for both dark and light websites. Square composition, entire silhouette and hands inside frame, compact arrangement with 6 percent margin. Genuinely transparent alpha background, no backdrop, no floor, no cast shadow, no checkerboard. NO text, letters, labels, numbers, branding, watermark, border or UI frame. The name and capabilities are rendered separately in React.

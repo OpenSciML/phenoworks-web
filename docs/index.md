@@ -4,7 +4,7 @@ PhenoLab helps research teams move from multimodal field observations to defensi
 
 The resulting datasets, features, figures, tables, models, statistics, methods, provenance, and literature form a scientific knowledge base. The PhenoLab Agent is designed to use that context to help users process, analyze, and interpret their data, supporting downstream analysis, scientific discovery, manuscripts, and grant proposals.
 
-![PhenoLab workflow from research data collection to scientific outcomes](/img/phenolab-scientific-workflow.png)
+![PhenoLab scientific workflow: research data collection, analysis, scientific knowledge base, and PhenoLab Agent](/img/phenolab-scientific-workflow.png)
 
 ## Software Architecture
 
