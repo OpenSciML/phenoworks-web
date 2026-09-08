@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([["6392"],{556(e){e.exports=JSON.parse('{"metadata":{"permalink":"/phenolab-web/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":3,"blogDescription":"Project updates, release notes, and development notes from PhenoLab.","blogTitle":"PhenoLab Blog"}}')}}]);
