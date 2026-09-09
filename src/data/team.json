@@ -45,11 +45,17 @@
     "description": "A growing community contributing code, analysis blocks, plug-ins, documentation, and examples.",
     "members": [
       {
-        "name": "Vijai Krishna",
+        "name": "Vijai Krishna Prasanna",
         "role": "Contributor",
+<<<<<<< Updated upstream
         "image": "/img/authors/vijai.png",
         "affiliation": "Texas A&M University",
         "bio": "Vijai Krishna Prasanna is a graduate research assistant and a masters student in Agronomy at Texas A&M University. His research focuses on agricultural robotics and the integration of computer vision, mechatronics, edge computing, and autonomous ground-based multi-sensor platforms for high-throughput crop phenotyping and site-specific weed management. By bridging custom mechatronics with automated analytical pipelines, his research aims to completely remove manual field-data bottlenecks, empowering breeders with the high-throughput insights needed to accelerate crop resilience and optimize precision management.",
+=======
+        "affiliation": "Texas A&M University @ Soil and Crop Sciences (SCSC)",
+        "bio": "Vijai Krishna Prasanna is a graduate research assistant and a masters student in Agronomy at Texas A&M University. His research focuses on agricultural robotics and the integration of computer vision, mechatronics, edge computing, and autonomous ground-based multi-sensor platforms for high-throughput crop phenotyping and site-specific weed management.",
+        "image": "/img/authors/vijai.png",
+>>>>>>> Stashed changes
         "position": "Graduate Research Assistant | Masters Student",
         "websiteUrl": "",
         "linkedinUrl": "https://www.linkedin.com/in/vijai-krishna-prasanna",
@@ -62,7 +68,7 @@
         "role": "Contributor",
         "image": "/img/authors/nav.jpeg",
         "affiliation": "Texas A&M University @ Soil and Crop Sciences (SCSC)",
-        "bio": "Contributing to the development of PhenoWorks.",
+        "bio": "Navjot Singh is a Precision Agricultural Research Associate and Ph.D. student in Soil and Crop Sciences at Texas A&M University. His research focuses on precision agriculture and the integration of machine learning, computer vision, data engineering, and drone-based imaging for weed detection, crop phenotyping, and site-specific weed management.",
         "position": "Precision Ag Research Associate | PhD student",
         "websiteUrl": "",
         "linkedinUrl": "https://www.linkedin.com/in/navjot-singh-nangia/",
