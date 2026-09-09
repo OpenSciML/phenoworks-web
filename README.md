@@ -25,6 +25,17 @@ Documentation pages live in `docs/`. Blog posts live in `blog/`. The sidebar
 order is defined in `sidebars.ts`, and site metadata lives in
 `docusaurus.config.ts`.
 
+## Logo
+
+The canonical logo is `assets/logo.svg` in the PhenoWorks application repository.
+The website keeps an identical copy at `static/img/phenoworks-logo.svg` for the
+navbar, favicon, and Docs overview. To refresh it from the application repository
+root:
+
+```bash
+cp assets/logo.svg website/static/img/phenoworks-logo.svg
+```
+
 ## Team page
 
 Edit `src/data/team.json` to update the people shown at `/team`. Each group has

@@ -58,12 +58,21 @@ phenoworks analysis-blocks search "vegetation index"
 phenoworks analysis-blocks search --category spectral --tag ndvi
 ```
 
-Build and install a local module package:
+Build and install the vegetation-index blocks from the repository root:
 
 ```bash
-uv run python scripts/blocks/build_ndvi_package.py
-phenoworks analysis-blocks install scripts/dist/ndvi_index
+uv run phenoworks analysis-blocks install-sources blocks/vegetation_indices \
+  --build-dir /tmp/phenoworks-block-builds
 ```
+
+Source blocks are grouped under `blocks/` by purpose: `vegetation_indices`,
+`image_analysis`, `phenobox`, `metadata`, `examples`, and `turf`. Use `blocks`
+instead of a category path to install all categories. Keep generated packages
+outside the source tree.
+
+To install an existing package directory, use
+`phenoworks analysis-blocks install <package-directory>`. Upload ZIP archives
+through **Analysis Modules** in the web workspace.
 
 Inspect implementation details before using a block:
 

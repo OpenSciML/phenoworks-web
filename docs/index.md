@@ -8,6 +8,17 @@ PhenoWorks brings field trials, imagery, sensor readings, metadata, treatments, 
 
 Keep the resulting features, figures, tables, and methods connected to their source data in a [Scientific Knowledge Base](features/scientific-knowledge-base.md). Work with the [PhenoWorks Agent](features/phenoworks-agent.md) to analyze results, interpret evidence, and draft research sections. [PhenoWorks MCP](features/phenoworks-mcp.md) connects compatible assistants to the workspace through authenticated tools.
 
+## License and citation
+
+PhenoWorks is licensed under the
+[Apache License 2.0](https://github.com/OpenSciML/phenoworks/blob/main/LICENSE).
+Third-party dependencies retain their own licensing terms.
+
+If you use PhenoWorks in research, please cite the software using
+[CITATION.cff](https://github.com/OpenSciML/phenoworks/blob/main/CITATION.cff).
+The repository's **Cite this repository** menu provides APA and BibTeX formats.
+Citation is appreciated and is not an additional license condition.
+
 ## Follow the workflow
 
 1. [Create a project and study](tutorials/first-project.md).
