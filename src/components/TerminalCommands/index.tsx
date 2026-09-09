@@ -13,10 +13,12 @@ type TerminalLine = {
 
 type TerminalCommandsProps = {
   title?: string;
+  language?: string;
+  prompt?: string;
   lines: TerminalLine[];
 };
 
-function commandsToBash(lines: TerminalLine[]) {
+function commandsToScript(lines: TerminalLine[]) {
   return lines
     .filter((line) => line.type !== 'output')
     .map((line) => (line.type === 'comment' ? `# ${line.value}` : line.value))
@@ -25,15 +27,18 @@ function commandsToBash(lines: TerminalLine[]) {
 
 export default function TerminalCommands({
   title = 'phenoworks terminal',
+  language = 'bash',
+  prompt = '$ ',
   lines,
 }: TerminalCommandsProps) {
-  const bashCommands = commandsToBash(lines);
+  const script = commandsToScript(lines);
+  const promptStyle = {'--terminal-prompt': `"${prompt}"`} as React.CSSProperties;
 
   return (
     <div className={styles.tabs}>
       <Tabs>
         <TabItem value="commands" label="Commands">
-          <CodeBlock language="bash">{bashCommands}</CodeBlock>
+          <CodeBlock language={language}>{script}</CodeBlock>
         </TabItem>
         <TabItem value="terminal" label="Terminal">
           <div className={styles.terminal}>
@@ -43,7 +48,7 @@ export default function TerminalCommands({
               <span className={styles.dot} />
               <span className={styles.title}>{title}</span>
             </div>
-            <pre className={styles.body}>
+            <pre className={styles.body} style={promptStyle}>
               {lines.map((line, index) => (
                 <span
                   className={`${styles.line} ${

@@ -1,0 +1,376 @@
+---
+slug: install-phenoworks-on-windows
+title: Installing PhenoWorks on Windows
+authors: [vjaxkrish]
+tags: [documentation, development]
+---
+
+import TerminalCommands from '@site/src/components/TerminalCommands';
+
+Most PhenoWorks development happens on Linux and macOS, where `make`, a POSIX
+shell, and Docker are already part of the environment. On Windows, a few of
+those assumptions do not hold: `make` is not installed, `cp` and `export` are
+not PowerShell commands, and Docker needs a WSL 2 backend before it can run the
+service stack.
+
+This post walks through a complete Windows installation using PowerShell, from
+prerequisites to a signed-in workspace with analysis blocks installed.
+
+{/* truncate */}
+
+## Which path to choose
+
+PhenoWorks offers two local installation paths, and the choice matters more on
+Windows than elsewhere.
+
+**Docker Compose** is the recommended path. It brings up PostgreSQL with PostGIS
+and pgvector, RabbitMQ, tusd, TiTiler, pgAdmin, the FastAPI backend, the Next.js
+UI, a Celery worker, and the MCP service together. You install Docker Desktop
+and Git, and the rest runs in containers.
+
+**Local development with `uv`** runs the backend and frontend directly on
+Windows. It installs the Python and Node dependencies only, so you provide
+PostgreSQL, RabbitMQ, tusd, and TiTiler yourself. Choose this path when you are
+working on backend or UI code and want to attach a debugger to a process running
+on the host.
+
+Both paths start from the same clone and the same command runner.
+
+## Prerequisites
+
+Install these before cloning:
+
+- **[Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/)**
+  with the WSL 2 backend enabled. Docker Desktop enables WSL 2 by default on
+  supported Windows versions; confirm it under **Settings → General → Use the
+  WSL 2 based engine**.
+- **[Git for Windows](https://gitforwindows.org/)**. If you plan to clone over
+  SSH, also configure
+  [GitHub SSH authentication](https://docs.github.com/en/authentication/connecting-to-github-with-ssh).
+- **Node.js LTS** and **Python 3.11 or newer**, for the `uv` path only.
+
+Run the remaining commands from **Windows PowerShell** or **PowerShell 7**, not
+from Command Prompt.
+
+## Install the `just` command runner
+
+The repository ships both a `Makefile` and a `justfile` with matching recipe
+names, so `make test` and `just test` run the same task. GNU Make is not
+available natively on Windows, which makes `just` the recommended runner there.
+Its `justfile` sets PowerShell as the shell on Windows, so the recipes run
+without WSL.
+
+Scoop installs `just` without administrator permissions:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {type: 'comment', value: 'Allow locally created scripts for the current user only'},
+    {value: 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser'},
+    {type: 'comment', value: 'Install Scoop, then just'},
+    {value: 'irm get.scoop.sh | iex'},
+    {value: 'scoop install just'},
+    {value: 'just --list'},
+    {type: 'output', value: 'Available recipes:'},
+    {type: 'output', value: '    compose-dev-up   # Start the development Compose stack.'},
+    {type: 'output', value: '    install-backend  # Install backend and development dependencies.'},
+    {type: 'output', value: '    run-dev          # Run the backend and UI development servers together.'},
+  ]}
+/>
+
+If Scoop is already installed, run only `scoop install just`. A per-user `winget`
+install may also work:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {value: 'winget install --id Casey.Just --exact --scope user'},
+  ]}
+/>
+
+Alternatively, run everything inside WSL 2 and use `make` as on Linux. In that
+case, keep the checkout inside the Linux filesystem rather than under `/mnt/c`,
+where file watching and I/O are slower.
+
+## Clone the repository
+
+PhenoWorks uses Git submodules for `lgopy`, `uavpy`, `mapwidgets`, and the
+documentation website. Clone them with the repository:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {value: 'git clone --recurse-submodules git@github.com:OpenSciML/phenoworks.git phenoworks'},
+    {value: 'cd phenoworks'},
+    {type: 'comment', value: 'If you already cloned without submodules'},
+    {value: 'git submodule update --init --recursive'},
+  ]}
+/>
+
+Choose a short path such as `C:\dev\phenoworks`. Deep nesting under a user
+profile directory can push build artifacts past the legacy path-length limit
+unless long paths are enabled.
+
+## Docker Compose installation
+
+### Configure the environment
+
+Copy the local sample to a root `.env`. In PowerShell, use `Copy-Item` rather
+than `cp`:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {value: 'Copy-Item .env.sample.local .env'},
+  ]}
+/>
+
+The task runners pass this file to Compose for variable substitution. Review it
+before starting; some settings in the Compose files are fixed rather than taken
+from `.env`.
+
+Set your own values for `PHENOWORKS_ADMIN_EMAIL`, `PHENOWORKS_ADMIN_PASSWORD`,
+and `PHENOWORKS_SECRET_KEY`. For the bundled MCP service and the agent, set:
+
+```dotenv
+PHENOWORKS_AGENT_MCP_URL=http://mcp:8787/mcp
+PHENOWORKS_AGENT_MODEL_NAME=gemini/gemini-2.5-flash
+GOOGLE_API_KEY=<your-model-provider-key>
+```
+
+The sample's `127.0.0.1` MCP address is for processes running on the host.
+Inside the API container, use `http://mcp:8787/mcp`.
+
+### Start the stack
+
+Start the development stack with source mounts and live reload, or the
+production-style stack, which builds the API, MCP, and UI images and serves the
+compiled Next.js application:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {type: 'comment', value: 'Development stack: source mounts and live reload'},
+    {value: 'just compose-dev-up'},
+    {type: 'comment', value: 'Production-style stack: built images, no reload'},
+    {value: 'just compose-up'},
+  ]}
+/>
+
+Both `up` recipes build and start services in the foreground, so the first run
+takes a while as images are pulled and built. Windows Defender Firewall may
+prompt for network access on the first start; allow it for private networks.
+
+Open a second PowerShell window for logs and administration:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {value: 'just compose-dev-logs'},
+    {value: 'just compose-dev-down'},
+  ]}
+/>
+
+The Compose files use the same project name and volumes, so run one stack at a
+time.
+
+### Sign in
+
+Once the services report ready, open `http://localhost:3000` and sign in with
+the administrator account from your `.env`. With the unmodified local defaults
+that is `admin@phenoworks.local` / `phenoworks-admin`.
+
+The other local addresses are `http://localhost:9000/api/docs` for the API
+documentation, `http://localhost:8787/mcp` for MCP, `http://localhost:5050` for
+pgAdmin, and `http://localhost:15672` for RabbitMQ management. PostgreSQL
+listens on `localhost:5433`.
+
+:::warning
+
+Replace the default credentials and secrets before exposing the installation
+beyond your own machine. Keep `AUTH_SECRET` or `NEXTAUTH_SECRET` stable within
+one environment so browser sessions remain valid.
+
+:::
+
+### Install analysis blocks
+
+A new installation has no analysis blocks. Install them through the API
+container so the CLI shares the application's database, catalog, and storage
+configuration. In PowerShell, use a backtick for line continuation instead of a
+backslash:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {value: 'docker compose --env-file .env -f deployment/compose/docker-compose.dev.yml exec api `\n  uv run phenoworks analysis-blocks install-sources blocks/image_analysis `\n  --build-dir /var/lib/phenoworks/analysis-block-builds'},
+    {value: 'docker compose --env-file .env -f deployment/compose/docker-compose.dev.yml exec api `\n  uv run phenoworks analysis-blocks list'},
+  ]}
+/>
+
+Other source groups include `blocks/vegetation_indices` and `blocks/phenobox`.
+Choose blocks appropriate for your inputs and installed dependencies. For the
+production-style stack, use `deployment/compose/docker-compose.yml` instead.
+
+## Local development with `uv`
+
+Install `uv` if you do not already have it, then install the backend and
+frontend dependencies:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {value: 'powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"'},
+    {value: 'just install-backend'},
+    {value: 'just install-ui'},
+  ]}
+/>
+
+Set the configuration in PowerShell with `$env:` assignments rather than
+`export`. These apply to the current session only:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {value: '$env:PHENOWORKS_DB_HOST = "localhost"'},
+    {value: '$env:PHENOWORKS_DB_PORT = "5432"'},
+    {value: '$env:PHENOWORKS_DB_NAME = "phenoworks"'},
+    {value: '$env:PHENOWORKS_DB_USER = "postgres"'},
+    {value: '$env:PHENOWORKS_DB_PASSWORD = "postgres"'},
+    {value: '$env:PHENOWORKS_DB_ADMIN_DATABASE = "postgres"'},
+    {value: '$env:PHENOWORKS_DATA_DIR = "$env:USERPROFILE\\.phenoworks"'},
+    {value: '$env:NEXT_PUBLIC_PHENOWORKS_API_BASE_URL = "http://127.0.0.1:9000/api"'},
+  ]}
+/>
+
+To keep them across sessions, use `[Environment]::SetEnvironmentVariable` with
+the `User` scope, or put them in a `.env` file the task runner reads.
+
+Run both servers together, or each one separately:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {type: 'comment', value: 'Both servers in parallel'},
+    {value: 'just run-dev'},
+    {type: 'comment', value: 'Or one at a time, in separate windows'},
+    {value: 'just dev-api'},
+    {value: 'just dev-ui'},
+  ]}
+/>
+
+Remember that this path installs the Python and Node dependencies only. You
+still need PostgreSQL with PostGIS and pgvector, RabbitMQ for external Celery
+workers, tusd for resumable uploads, and TiTiler for raster tiles. A practical
+hybrid is to run the supporting services from Compose and the API and UI on the
+host.
+
+SQLite is not a supported runtime database.
+
+## Windows-specific notes
+
+**Line endings.** Git for Windows converts checkouts to CRLF by default, which
+breaks shell scripts copied into Linux containers. The repository does not ship
+a `.gitattributes` file, so set the conversion before cloning. Node and Python
+build trees also nest deeply, so enable long paths at the same time:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {value: 'git config --global core.autocrlf input'},
+    {value: 'git config --global core.longpaths true'},
+  ]}
+/>
+
+If you already cloned with CRLF endings, reset the working tree after changing
+the setting.
+
+**WSL 2 resources.** Building the API and UI images and running the full stack
+is memory-hungry. If containers are killed during a build, raise the WSL 2
+memory limit in `%UserProfile%\.wslconfig` and restart Docker Desktop:
+
+```ini
+[wsl2]
+memory=8GB
+processors=4
+```
+
+**Data directory.** The task runners mount the repository's `data\` directory at
+`/var/lib/phenoworks` in the API, worker, and upload services. To use another
+host directory, pass an absolute path:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {value: 'just PHENOWORKS_DATA_DIR=C:\\dev\\phenoworks-data compose-up'},
+  ]}
+/>
+
+Database state and other service data live in named Docker volumes, so back up
+both the mounted files and the database. The `compose-fresh-up` and
+`compose-dev-fresh-up` recipes run `down --volumes` and reset Docker-managed
+data, including PostgreSQL. Reserve them for disposable environments.
+
+**Port conflicts.** Ports 3000, 5050, 5433, 8000, 8787, 9000, 1080, 5672, and
+15672 must be free. Check a specific port with:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {value: 'Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue'},
+  ]}
+/>
+
+Hyper-V and WSL reserve dynamic port ranges on Windows, which occasionally
+collides with these. Restarting the `winnat` service releases the reservation.
+
+## Verify the installation
+
+Sign in, create a small dataset, and upload an image. Inspect it in the dataset
+editor, then run a compatible analysis block and confirm the worker completes
+the job and its outputs appear in the workspace.
+
+If a service fails, read its logs before resetting volumes or rebuilding:
+
+<TerminalCommands
+  title="Windows PowerShell"
+  language="powershell"
+  prompt="PS> "
+  lines={[
+    {value: 'docker compose --env-file .env -f deployment/compose/docker-compose.dev.yml ps'},
+    {value: 'docker compose --env-file .env -f deployment/compose/docker-compose.dev.yml logs api mcp worker'},
+  ]}
+/>
+
+## Next steps
+
+- [Getting Started](/docs/getting-started) for the quick path and requirements
+- [Docker Compose deployment](/docs/deployment/docker-compose) for ports, volumes, and hosting beyond localhost
+- [Configuration](/docs/tutorials/configure-settings) for runtime settings
+- [First Project](/docs/tutorials/first-project) to create a study workspace
