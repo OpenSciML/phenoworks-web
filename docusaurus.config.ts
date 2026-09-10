@@ -114,8 +114,8 @@ const config: Config = {
               to: '/docs/getting-started',
             },
             {
-              label: 'Docker Compose',
-              to: '/docs/deployment/docker-compose',
+              label: 'Install on Windows',
+              to: '/blog/install-phenoworks-on-windows',
             },
           ],
         },

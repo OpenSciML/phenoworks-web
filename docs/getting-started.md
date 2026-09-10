@@ -59,6 +59,6 @@ Replace default credentials and secrets before exposing the app outside a local 
 
 ## Next Steps
 
-- Install the application: [Docker Compose deployment](deployment/docker-compose.md)
+- Install on Windows: [Install PhenoWorks on Windows](/blog/install-phenoworks-on-windows)
 - Configure runtime settings: [Configuration](tutorials/configure-settings.md)
 - Create a study workspace: [First Project](tutorials/first-project.md)
