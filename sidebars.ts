@@ -17,22 +17,6 @@ const sidebars: SidebarsConfig = {
     'index',
     {
       type: 'category',
-      label: 'Features',
-      items: [
-        'features/projects',
-        'features/studies',
-        'features/dataset-editor',
-        'features/analysis-modules',
-        'features/analysis-pipelines',
-        'features/results-exports',
-        'features/scientific-knowledge-base',
-        'features/phenoworks-mcp',
-        'features/phenoworks-agent',
-        'features/users-api-keys',
-      ],
-    },
-    {
-      type: 'category',
       label: 'Getting Started',
       items: [
         'tutorials/first-project',

@@ -33,13 +33,10 @@ export default function Home(): ReactNode {
               An agentic-first crop phenotyping platform that turns multi-sensor agricultural data into a searchable scientific knowledge base using modular, AI-powered analysis pipelines and intelligent agents that help researchers analyze data, uncover insights, and accelerate discovery.
             </p>
             <div className={styles.actions}>
-              <Link className="button button--primary button--lg" href="https://docs.google.com/forms/d/e/1FAIpQLSfs6dAI3IQofL37Zmodcbr3v7B1f0_09GoUnwPrqVkgOdvf6g/viewform">
-                Express Interest
-              </Link>
               <Link className="button button--secondary button--lg" to="/get-started">
                 Get Started
               </Link>
-              <Link className="button button--secondary button--lg" to="/docs/">
+              <Link className="button button--secondary button--lg" to="/docs/tutorials/first-project">
                 Software Overview
               </Link>
             </div>
