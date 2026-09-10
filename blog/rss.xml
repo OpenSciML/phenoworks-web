@@ -169,7 +169,6 @@ the job and its outputs appear in the workspace.</p>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="next-steps">Next steps<a href="https://phenoworks.org/blog/install-phenoworks-on-windows#next-steps" class="hash-link" aria-label="Direct link to Next steps" title="Direct link to Next steps" translate="no">​</a></h2>
 <ul>
 <li class=""><a class="" href="https://phenoworks.org/docs/getting-started">Getting Started</a> for the quick path and requirements</li>
-<li class=""><a class="" href="https://phenoworks.org/docs/deployment/docker-compose">Docker Compose deployment</a> for ports, volumes, and hosting beyond localhost</li>
 <li class=""><a class="" href="https://phenoworks.org/docs/tutorials/configure-settings">Configuration</a> for runtime settings</li>
 <li class=""><a class="" href="https://phenoworks.org/docs/tutorials/first-project">First Project</a> to create a study workspace</li>
 </ul>]]></content:encoded>
