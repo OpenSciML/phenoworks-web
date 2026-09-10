@@ -21,18 +21,24 @@ Create the first project and study that will hold datasets and plot assets.
 4. Fill in the name, owner, and description.
 5. Save the project.
 
-![Create project](../images/projects-list.svg)
+![Create project](../images/tutorials/first-project/tut1_1.png)
+
+![Create project proceed](../images/tutorials/first-project/tut1_2.png)
 
 6. Open **Studies**.
+
+![Create study](../images/tutorials/first-project/tut1_3.png)
+
 7. Select **New study**.
 8. Choose the project and enter study details.
 9. Save the study.
 
-![Create study](../images/studies-list.svg)
 
 ## Expected Result
 
 You have one project and one study. The study is available in the editor tree for dataset and file organization.
+
+![Create study](../images/tutorials/first-project/tut1_4.png)
 
 ## Common Mistakes
 
