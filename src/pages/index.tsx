@@ -36,7 +36,7 @@ export default function Home(): ReactNode {
               <Link className="button button--primary button--lg" href="https://docs.google.com/forms/d/e/1FAIpQLSfs6dAI3IQofL37Zmodcbr3v7B1f0_09GoUnwPrqVkgOdvf6g/viewform">
                 Express Interest
               </Link>
-              <Link className="button button--secondary button--lg" to="/docs/tutorials/first-project">
+              <Link className="button button--secondary button--lg" to="/get-started">
                 Get Started
               </Link>
               <Link className="button button--secondary button--lg" to="/docs/">

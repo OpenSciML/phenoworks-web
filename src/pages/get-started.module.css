@@ -1,0 +1,152 @@
+.page {
+  padding: 3.5rem max(1.5rem, calc((100vw - 1180px) / 2));
+  background: var(--ifm-background-color);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 3.5rem;
+  align-items: start;
+}
+
+/* ---------- Left: the pitch ---------- */
+
+.pitch {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0 0 0.6rem;
+  color: var(--ifm-color-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.headline {
+  margin-bottom: 1.25rem;
+  font-size: clamp(2rem, 4.4vw, 3.1rem);
+  line-height: 1.1;
+}
+
+.lede {
+  max-width: 60ch;
+  margin: 0 0 2.5rem;
+  color: var(--ifm-color-emphasis-800);
+  font-size: 1.2rem;
+  line-height: 1.6;
+}
+
+.capabilities {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.75rem 2.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.capability {
+  min-width: 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--ifm-color-primary);
+}
+
+.capabilityTitle {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.capabilityBody {
+  margin: 0;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.97rem;
+  line-height: 1.6;
+}
+
+.footnote {
+  max-width: 65ch;
+  margin: 2.5rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ---------- Right: the sign-up panel ---------- */
+
+.signup {
+  position: sticky;
+  top: calc(var(--ifm-navbar-height) + 2rem);
+  min-width: 0;
+}
+
+.signupCard {
+  padding: 2rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 12px;
+  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
+  box-shadow: 0 8px 24px rgb(0 0 0 / 7%);
+}
+
+.signupTitle {
+  margin: 0 0 0.75rem;
+  font-size: 1.5rem;
+}
+
+.signupBody {
+  margin: 0 0 1.5rem;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.signupButton {
+  width: 100%;
+}
+
+.signupMeta {
+  margin: 0.85rem 0 0;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.signupDivider {
+  margin: 1.75rem 0 1.25rem;
+  background-color: var(--ifm-color-emphasis-200);
+}
+
+.signupAlt {
+  margin: 0;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* ---------- Narrow screens ---------- */
+
+@media screen and (max-width: 996px) {
+  .page {
+    padding-block: 2.5rem;
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+
+  .signup {
+    position: static;
+    order: -1;
+  }
+
+  .capabilities {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+}
