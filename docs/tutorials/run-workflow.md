@@ -1,58 +1,81 @@
 # Tutorial: Running a Workflow
 
-Run a small image-processing pipeline, follow its progress, and inspect the
-outputs. This example uses the bundled **Histogram Equalization** block to
-produce enhanced RGB images and a result table.
+Install an analysis module, build a one-step pipeline around it, and run it
+against a dataset. This example uses the **NDVI Index** module to calculate
+vegetation-index statistics from plot orthomosaics.
 
 ## Before you start
 
-You need a project with an accessible dataset containing RGB plot assets, an
-installed `histogram_equalization` block, and a running worker. Review a few
-images first. Histogram equalization changes contrast; whether it improves a
-particular dataset needs visual assessment.
+You need a project with an accessible dataset containing multispectral assets, a
+running worker, and the module you intend to run. If the module is not installed
+yet, have its built package zip ready.
 
-## 1. Choose the dataset and method
+Check the one-based NIR and red band indices against your sensor's band order
+before running. RGB imagery alone does not supply a near-infrared band.
 
-Open **Analysis Modules** and find **Histogram Equalization**. Confirm its
-version and input requirements. The source example is
-`blocks/image_analysis/histogram_equalization.py`; an administrator can install
-its package if it is missing from the catalog.
+## 1. Check that the module is installed
 
-Open **Analysis Pipelines**, select **Run pipeline**, and use **Dataset & Functions**
-to choose the project, study, dataset, and block version.
+Open **Modules** and look for the module you need. The list shows every analysis
+module available to PhenoWorks, with its version, category, and author.
 
-## 2. Review the pipeline
+![The Analysis modules page with no modules installed and the Install module button highlighted](../images/tutorials/run-workflow/tut3_1.png)
 
-Continue through **Functions Ordering** and **Parameters**. This example has one
-block and does not need a chain of processing steps. In **Pipeline**, inspect
-the graph and select **Preview JSON** to check the dataset and block definition.
+If it is missing, select **Install module**, choose the module's zip, and select
+**Install**. The page confirms the installed name and version.
 
-When adding more blocks, verify that each output matches the next input. An
-image saved as an artifact is not necessarily the value returned to the next step.
+![The Analysis modules page showing NDVI Index installed at version 0.1.0, with its category, author, and tags](../images/tutorials/run-workflow/tut3_2.png)
 
-## 3. Run and monitor
+## 2. Start a new analysis
 
-Select **Run pipeline**. Find the new job in the pipeline list and open
-**View output log** to follow its progress. The request is queued for the worker,
-so allow the job to finish before interpreting the outputs.
+Open **Pipelines** and select **Run pipeline**. This opens the **New Analysis**
+wizard, which has four steps.
+
+![The Analysis pipelines page with no jobs yet and the Run pipeline button highlighted](../images/tutorials/run-workflow/tut3_3.png)
+
+In **Dataset & Functions**, choose the project, study, and dataset, then select
+the modules to run from **Available Functions**. Modules are grouped by category.
+
+![Step 1 of the New Analysis wizard with project, study, and dataset selected and the NDVI Index function checked](../images/tutorials/run-workflow/tut3_4.png)
+
+Select **Next** to continue to **Functions Ordering**. This example runs a single
+module, so there is no ordering to set. When you do chain modules, verify that
+each output matches the next input — an image saved as an artifact is not
+necessarily the value returned to the next step.
+
+## 3. Set the parameters
+
+In **Parameters**, fill in the inputs each module needs. NDVI Index takes the
+one-based band indices for the near-infrared and red bands.
+
+![Step 3 of the wizard showing the NDVI Index parameters Nir Band and Red Band](../images/tutorials/run-workflow/tut3_5.png)
+
+## 4. Review and run
+
+In **Pipeline**, inspect the graph to confirm the dataset feeds into the module
+with the parameters you set. Select **Preview JSON** to check the full
+definition, then select **Run pipeline**.
+
+![Step 4 of the wizard showing the pipeline graph from Example_dataset into NDVI Index, with the Run pipeline button highlighted](../images/tutorials/run-workflow/tut3_6.png)
+
+## 5. Monitor and inspect the result
+
+The new job appears in the pipeline list. Open **View output log** to follow its
+progress. The request is queued for the worker, so allow the job to finish before
+interpreting the outputs.
 
 If it fails, read the error message and confirm the dataset's asset structure,
-file accessibility, and block dependencies before retrying.
+file accessibility, and module dependencies before retrying.
 
-## 4. Inspect the result
+When it completes, select the pipeline to view its **Artifacts**. The worker
+saves DataFrame results as an Excel workbook.
 
-Open the run's artifacts. The block saves enhanced PNG images and returns a table
-with one row per processed RGB asset. The worker saves DataFrame results as an
-Excel workbook. Compare an enhanced image with its original before applying the
-same workflow more broadly.
+## Try image processing next
 
-![Analysis pipelines](../images/analysis-pipelines.svg)
-
-## Try feature extraction next
-
-For multispectral data, an installed `ndvi_index` block can calculate vegetation-index
-statistics. Check the one-based NIR and red band indices against your sensor's
-band order. RGB images alone do not supply a near-infrared band.
+For RGB data, the bundled `histogram_equalization` module adjusts contrast and
+returns a table with one row per processed asset. Its source is
+`blocks/image_analysis/histogram_equalization.py`. Review a few images first —
+whether histogram equalization improves a particular dataset needs visual
+assessment.
 
 Continue with [Viewing and Exporting Results](view-export-results.md), or run
 an analysis conversationally with the [Agent](analyze-with-agent.md).

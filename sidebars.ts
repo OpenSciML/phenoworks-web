@@ -37,11 +37,18 @@ const sidebars: SidebarsConfig = {
       items: [
         'tutorials/first-project',
         'tutorials/import-data',
-        'tutorials/configure-settings',
         'tutorials/run-workflow',
         'tutorials/view-export-results',
-        'tutorials/connect-mcp',
         'tutorials/analyze-with-agent',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Advanced Tutorials',
+      collapsed: true,
+      items: [
+        'tutorials/configure-settings',
+        'tutorials/connect-mcp',
         'tutorials/draft-research-sections',
       ],
     },
