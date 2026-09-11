@@ -70,6 +70,19 @@ const config: Config = {
             './src/components/AskPhenoWorks/styles.css',
           ],
         },
+        // Google Analytics 4. Use the preset's plugin rather than pasting
+        // Google's gtag.js snippet into the page: this site is a single-page
+        // app, so a raw snippet would report one page_view on first load and
+        // nothing for the client-side navigations that follow. The plugin
+        // hooks the router and reports each route change.
+        //
+        // It only runs in production builds — `yarn start` sends nothing,
+        // which is what you want while developing.
+        gtag: {
+          trackingID: 'G-XS4PT7GKSK',
+          // Truncates the visitor's IP before it is stored.
+          anonymizeIP: true,
+        },
       } satisfies Preset.Options,
     ],
   ],
@@ -107,7 +120,7 @@ const config: Config = {
 
       // Optional: whether you want to use the new Ask AI feature (undefined by default)
       askAi: {
-        assistantId: 'b233de45-f02f-4249-b33f-29e4efb75ea7',
+        assistantId: 'b9fc01e7-c4f3-4609-a879-f1768d45c78d',
         indexName: 'phenoworks.org',
         apiKey: 'c1b68b37278c54418a15e5224c83495a',
         appId: 'FWYPFEFWZA',
