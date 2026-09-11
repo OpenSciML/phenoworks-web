@@ -130,10 +130,35 @@
 }
 
 .signupAlt {
-  margin: 0;
+  margin: 0 0 0.9rem;
   color: var(--ifm-color-emphasis-700);
   font-size: 0.9rem;
   line-height: 1.6;
+}
+
+.signupLinks {
+  display: grid;
+  gap: 0.6rem;
+}
+
+/* Secondary route out of the card: white fill, so it reads as an alternative
+   to the green primary rather than competing with it. The descendant selector
+   is what beats Infima's own `.button` rules. */
+.signupLinks .signupLinkButton {
+  width: 100%;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: #ffffff;
+  color: #173f32;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.signupLinks .signupLinkButton:hover,
+.signupLinks .signupLinkButton:focus-visible {
+  border-color: var(--ifm-color-primary);
+  background: #eef4f0;
+  color: #123528;
+  text-decoration: none;
 }
 
 /* ---------- Narrow screens ---------- */
