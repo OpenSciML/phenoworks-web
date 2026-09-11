@@ -1,12 +1,16 @@
-import {useMemo, type ComponentProps, type ReactNode} from 'react';
+import {useEffect, useMemo, type ComponentProps, type ReactNode} from 'react';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Link from '@docusaurus/Link';
 import {liteClient} from 'algoliasearch/lite';
 import {Chat, ChatSidePanelLayout, ChatTrigger, InstantSearch} from 'react-instantsearch';
 
+import PhenoNinja from '@site/src/components/PhenoNinja';
+import {setChatThinking, useChatThinking} from './thinkingStore';
+
 type ChatProps = ComponentProps<typeof Chat>;
 type EmptyProps = Parameters<NonNullable<ChatProps['emptyComponent']>>[0];
 type ErrorProps = Parameters<NonNullable<ChatProps['messagesErrorComponent']>>[0];
+type LoaderProps = Parameters<NonNullable<ChatProps['loaderComponent']>>[0];
 type ResultProps = Parameters<NonNullable<ChatProps['itemComponent']>>[0];
 type SearchConfiguration = {
   appId: string;
@@ -51,9 +55,35 @@ function DocumentationSource({item}: ResultProps): React.JSX.Element {
   </article>;
 }
 
+/**
+ * Show PhenoNinja while a turn is in flight.
+ *
+ * The loader mounts and unmounts with the turn, which is how the floating
+ * trigger learns that the assistant is busy — its icon slot is only handed
+ * `isOpen`.
+ *
+ * @param props - Loader context and translations supplied by the widget.
+ */
+function ThinkingLoader({translations}: LoaderProps): React.JSX.Element {
+  useEffect(() => {
+    setChatThinking(true);
+    return () => setChatThinking(false);
+  }, []);
+
+  return <div className="phenoworks-chat-loader">
+    <PhenoNinja state="thinking" size={30} />
+    <span>{translations?.loaderText ?? 'Looking through the documentation…'}</span>
+  </div>;
+}
+
 /** Label the floating chat trigger. @param isOpen - Whether the panel is visible. */
 function TriggerLabel({isOpen}: {isOpen: boolean}): React.JSX.Element {
-  return <span className="phenoworks-chat-trigger-label"><span aria-hidden="true">{isOpen ? '→' : '✦'}</span>{isOpen ? 'Close chat' : 'Ask PhenoWorks'}</span>;
+  const thinking = useChatThinking();
+  const state = thinking ? 'thinking' : isOpen ? 'open' : 'idle';
+  return <span className="phenoworks-chat-trigger-label">
+    <PhenoNinja state={state} size={96} />
+    <span className="phenoworks-chat-trigger-text">{thinking ? 'Thinking…' : isOpen ? 'Close chat' : 'Ask PhenoWorks'}</span>
+  </span>;
 }
 
 /** Render the persistent Agent Studio panel using the website's public search configuration. */
@@ -70,6 +100,7 @@ export default function AskPhenoWorks(): ReactNode {
       classNames={{root: 'phenoworks-chat'}}
       emptyComponent={Welcome}
       messagesErrorComponent={ConnectionError}
+      loaderComponent={ThinkingLoader}
       itemComponent={DocumentationSource}
       showReasoning={false}
       translations={{

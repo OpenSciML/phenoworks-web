@@ -15,9 +15,24 @@
 .phenoworks-chat-trigger.ais-ChatToggleButton--open { transform: none; }
 .phenoworks-chat .ais-Chat-container { height: 100%; border-left: 1px solid var(--ifm-color-emphasis-200); }
 .phenoworks-chat .ais-ChatHeader { padding: 20px 16px; }
-.phenoworks-chat-trigger { width: auto; min-width: 172px; border-radius: 999px; padding: 14px 20px; box-shadow: 0 5px 24px #123c2b30; }
-.phenoworks-chat-trigger-label { display: flex; gap: 10px; align-items: center; font-weight: 650; white-space: nowrap; }
-.phenoworks-chat-trigger-label > span { font-size: 22px; }
+/* The trigger is position:fixed, so the mascot can perch outside it. */
+.phenoworks-chat-trigger { width: auto; min-width: 186px; border-radius: 999px; padding: 13px 24px; overflow: visible; box-shadow: 0 5px 24px #123c2b30; animation: phenoworks-chat-attention 7s ease-in-out infinite; }
+.phenoworks-chat-trigger:hover { animation-play-state: paused; box-shadow: 0 8px 28px #123c2b45; }
+.phenoworks-chat-trigger.ais-ChatToggleButton--open { animation: none; }
+.phenoworks-chat-trigger-label { display: flex; justify-content: center; align-items: center; font-weight: 650; white-space: nowrap; }
+@keyframes phenoworks-chat-attention {
+  0%, 80%, 100% { box-shadow: 0 5px 24px #123c2b30, 0 0 0 0 rgba(47, 125, 92, .45); }
+  90% { box-shadow: 0 5px 24px #123c2b30, 0 0 0 10px rgba(47, 125, 92, 0); }
+}
+/* Perched on the right end of the pill, leaning over it. The library ships
+   `.ais-ChatToggleButton svg { width: … }`, so the size is set here to win. */
+/* No CSS `filter` here: a filter combined with the transform below rasterises
+   the mascot and visibly softens it. The contact shadow is drawn in the SVG. */
+.phenoworks-chat-trigger .phenoninja { position: absolute; right: -4px; bottom: calc(100% - 15px); width: 96px; height: 96px; pointer-events: none; transform: rotate(-7deg); transition: transform .25s ease; }
+.phenoworks-chat-trigger .phenoninja--open { transform: rotate(0deg); }
+.phenoworks-chat-trigger:hover .phenoninja { transform: rotate(-2deg) translateY(-3px); }
+.phenoworks-chat-loader { display: flex; gap: 10px; align-items: center; padding: 6px 2px; color: var(--ifm-color-emphasis-700); font-size: 14px; }
+.phenoworks-chat-loader .phenoninja { width: 30px; height: 30px; --phenoninja-shadow: transparent; --phenoninja-hood: var(--ifm-color-primary); --phenoninja-band: var(--ifm-color-primary-lightest); --phenoninja-slit: #ffffff; --phenoninja-eye: var(--ifm-color-primary-darkest); --phenoninja-leaf: #ffffff; --phenoninja-outline: transparent; }
 .phenoworks-chat-welcome { padding: 28px 10px; }
 .phenoworks-chat-eyebrow { color: var(--ifm-color-primary); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
 .phenoworks-chat-welcome h2 { margin-top: 14px; font-size: 25px; letter-spacing: -.03em; }
@@ -38,7 +53,10 @@
   body:has(.phenoworks-chat) { margin-right: 0 !important; }
   .phenoworks-chat { height: 100dvh; }
   .phenoworks-chat-trigger.ais-ChatToggleButton--open { display: none; }
+  .phenoworks-chat-trigger { min-width: 0; padding: 11px 18px; }
+  .phenoworks-chat-trigger .phenoninja { width: 68px; height: 68px; right: -2px; bottom: calc(100% - 11px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .phenoworks-chat, .phenoworks-chat * { transition: none !important; scroll-behavior: auto !important; }
+  .phenoworks-chat-trigger { animation: none !important; }
 }

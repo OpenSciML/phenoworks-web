@@ -117,13 +117,20 @@ export default function GetStarted(): ReactNode {
               <hr className={styles.signupDivider} />
 
               <p className={styles.signupAlt}>
-                See how it fits your research.{' '}
-                <Link to="/docs/">Explore PhenoWorks</Link> or{' '}
-                <Link to="/docs/tutorials/first-project">
-                  follow the first tutorial
-                </Link>
-                .
+                Or see how it fits your research first.
               </p>
+              <div className={styles.signupLinks}>
+                <Link
+                  className={`button button--lg ${styles.signupLinkButton}`}
+                  to="/docs/tutorials/first-project">
+                  Go to tutorials
+                </Link>
+                <Link
+                  className={`button button--lg ${styles.signupLinkButton}`}
+                  to="/docs/">
+                  Software overview
+                </Link>
+              </div>
             </div>
           </aside>
         </div>
