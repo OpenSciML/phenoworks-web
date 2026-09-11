@@ -1,0 +1,217 @@
+.page {
+  padding: 3.5rem max(1.5rem, calc((100vw - 1180px) / 2));
+  background: var(--ifm-background-color);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 3.5rem;
+  align-items: start;
+}
+
+/* ---------- Left: why write to us ---------- */
+
+.intro {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0 0 0.6rem;
+  color: var(--ifm-color-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.headline {
+  margin-bottom: 1.25rem;
+  font-size: clamp(2rem, 4vw, 2.9rem);
+  line-height: 1.1;
+}
+
+.lede {
+  max-width: 52ch;
+  margin: 0 0 2.5rem;
+  color: var(--ifm-color-emphasis-800);
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+.alt {
+  margin: 0;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.altTerm {
+  margin: 0 0 0.25rem;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.altDetail {
+  margin: 0 0 1.35rem;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.altDetail:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Right: the form ---------- */
+
+.formPanel {
+  min-width: 0;
+}
+
+.formCard {
+  padding: 2rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 12px;
+  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
+  box-shadow: 0 8px 24px rgb(0 0 0 / 7%);
+}
+
+.formTitle {
+  margin: 0 0 1.5rem;
+  font-size: 1.4rem;
+}
+
+.field {
+  margin-bottom: 1.25rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.label span {
+  color: var(--ifm-color-primary);
+}
+
+.input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  font: inherit;
+  font-size: 0.97rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.input:focus {
+  border-color: var(--ifm-color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(47 125 92 / 18%);
+}
+
+.input:disabled {
+  opacity: 0.6;
+}
+
+/* Only style the invalid ring once the browser has judged the field, so an
+   untouched empty form is not painted red on arrival. */
+.input:user-invalid {
+  border-color: #c1443c;
+}
+
+.textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.hint {
+  margin: 0.4rem 0 0;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.82rem;
+}
+
+.submit {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.status {
+  margin: 0.85rem 0 0;
+  min-height: 1.2rem;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.errorText {
+  color: #c1443c;
+  font-weight: 600;
+}
+
+/* Off-screen rather than display:none — some bots skip hidden inputs. */
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ---------- Sent ---------- */
+
+.success {
+  padding: 1rem 0;
+}
+
+.successTitle {
+  margin: 0 0 0.75rem;
+  font-size: 1.35rem;
+}
+
+.successBody {
+  margin: 0 0 1.75rem;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.secondaryButton {
+  width: 100%;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: #ffffff;
+  color: #173f32;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.secondaryButton:hover,
+.secondaryButton:focus-visible {
+  border-color: var(--ifm-color-primary);
+  background: #eef4f0;
+  color: #123528;
+}
+
+/* ---------- Narrow screens ---------- */
+
+@media screen and (max-width: 996px) {
+  .page {
+    padding-block: 2.5rem;
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+
+  .formPanel {
+    order: -1;
+  }
+}

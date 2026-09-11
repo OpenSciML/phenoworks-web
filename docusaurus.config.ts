@@ -142,6 +142,7 @@ const config: Config = {
         },
         {to: '/blog', label: 'Blog', position: 'left'},
         {to: '/team', label: 'Team', position: 'left'},
+        {to: '/contact', label: 'Contact', position: 'left'},
         {
           href: 'https://github.com/OpenSciML/phenoworks-web',
           label: 'GitHub',
@@ -192,6 +193,10 @@ const config: Config = {
             {
               label: 'Blog',
               to: '/blog',
+            },
+            {
+              label: 'Contact',
+              to: '/contact',
             },
             {
               label: 'GitHub',
