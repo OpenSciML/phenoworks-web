@@ -108,7 +108,7 @@ export default function GetStarted(): ReactNode {
               <Link
                 className={`button button--primary button--lg ${styles.signupButton}`}
                 href={SIGNUP_FORM_URL}>
-                Request early access
+                Request access
               </Link>
               <p className={styles.signupMeta}>
                 Takes about two minutes.

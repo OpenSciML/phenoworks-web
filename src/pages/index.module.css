@@ -26,6 +26,23 @@
   line-height: 1;
 }
 
+/* Superscript "Beta" badge riding next to the wordmark in the hero heading. */
+.betaTag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.25em 0.6em;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: clamp(0.7rem, 1.3vw, 0.95rem);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  vertical-align: super;
+}
+
 .subtitle {
   max-width: 620px;
   margin: 0;
@@ -45,6 +62,51 @@
   color: #173f32;
   background: rgba(255, 255, 255, 0.9);
   border-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Primary hero call to action: solid brand green, sized up so it reads as the
+   single next step against the hero image in both light and dark mode. */
+.actions .primaryCta {
+  padding: 1rem 2.75rem;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: #2f7d5c;
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.actions .primaryCta:hover,
+.actions .primaryCta:focus-visible {
+  background: #348a65;
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #ffffff;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.actions .primaryCta:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .actions .primaryCta {
+    transition: none;
+  }
+
+  .actions .primaryCta:hover,
+  .actions .primaryCta:focus-visible,
+  .actions .primaryCta:active {
+    transform: none;
+  }
 }
 
 .workflowSection {

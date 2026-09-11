@@ -28,16 +28,16 @@ export default function Home(): ReactNode {
             />
             <Heading as="h1" className={styles.title}>
               PhenoWorks
+              <sup className={styles.betaTag}>Beta</sup>
             </Heading>
             <p className={styles.subtitle}>
               An agentic-first crop phenotyping platform that turns multi-sensor agricultural data into a searchable scientific knowledge base using modular, AI-powered analysis pipelines and intelligent agents that help researchers analyze data, uncover insights, and accelerate discovery.
             </p>
             <div className={styles.actions}>
-              <Link className="button button--secondary button--lg" to="/get-started">
+              <Link
+                className={`button button--primary button--lg ${styles.primaryCta}`}
+                to="/get-started">
                 Get Started
-              </Link>
-              <Link className="button button--secondary button--lg" to="/docs/tutorials/first-project">
-                Software Overview
               </Link>
             </div>
           </div>
