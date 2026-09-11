@@ -84,8 +84,14 @@ const config: Config = {
 
       indexName: 'phenoworks.org',
 
-      // Optional: see doc section below
-      contextualSearch: true,
+      // Must stay false while Ask AI runs on Agent Studio: contextual search
+      // injects `facetFilters` into searchParameters, and Agent Studio rejects
+      // that key outright ("invalid searchParameters"). DocSearch's own types
+      // say as much — AgentStudioSearchParameters is
+      // Omit<AskAiSearchParameters, 'facetFilters'>. Little is lost: the
+      // filters it adds scope results to a docs version and locale, and this
+      // site has one of each.
+      contextualSearch: false,
 
       // Optional: Specify domains where the navigation should occur through window.location instead on history.push. Useful when our Algolia config crawls multiple documentation sites and we want to navigate with window.location.href to them.
       externalUrlRegex: 'external\\.com|domain\\.com',
