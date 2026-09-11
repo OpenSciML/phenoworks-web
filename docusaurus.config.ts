@@ -64,13 +64,53 @@ const config: Config = {
           onUntruncatedBlogPosts: 'warn',
         },
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: [
+            require.resolve('instantsearch.css/components/chat.css'),
+            './src/css/custom.css',
+            './src/components/AskPhenoWorks/styles.css',
+          ],
         },
       } satisfies Preset.Options,
     ],
   ],
 
   themeConfig: {
+    algolia: {
+      // The application ID provided by Algolia
+      appId: 'FWYPFEFWZA',
+
+      // Public API key: it is safe to commit it
+      apiKey: 'c1b68b37278c54418a15e5224c83495a',
+
+      indexName: 'phenoworks.org',
+
+      // Optional: see doc section below
+      contextualSearch: true,
+
+      // Optional: Specify domains where the navigation should occur through window.location instead on history.push. Useful when our Algolia config crawls multiple documentation sites and we want to navigate with window.location.href to them.
+      externalUrlRegex: 'external\\.com|domain\\.com',
+
+      // Optional: Algolia search parameters
+      searchParameters: {},
+
+      // Optional: path for search page that enabled by default (`false` to disable it)
+      searchPagePath: 'search',
+
+      // Optional: whether the insights feature is enabled or not on Docsearch (`false` by default)
+      insights: false,
+
+      // Optional: whether you want to use the new Ask AI feature (undefined by default)
+      askAi: {
+        assistantId: 'b233de45-f02f-4249-b33f-29e4efb75ea7',
+        indexName: 'phenoworks.org',
+        apiKey: 'c1b68b37278c54418a15e5224c83495a',
+        appId: 'FWYPFEFWZA',
+        // Enable after configuring suggested questions in the Algolia assistant dashboard.
+        suggestedQuestions: false,
+      },
+
+      //... other Algolia params
+    },
     docs: {
       sidebar: {
         hideable: true,

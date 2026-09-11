@@ -32,11 +32,6 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.original {
-  flex-shrink: 0;
-  margin-top: 0.2rem;
-  font-size: 0.8rem;
-}
 
 .stages {
   display: grid;
@@ -282,7 +277,7 @@
 .outcome:nth-child(2) > span:first-child { color: #367695; }
 .outcome:nth-child(3) > span:first-child { color: #6e59a9; }
 .outcome:nth-child(4) > span:first-child { color: #c95e32; }
-.workflow button:focus-visible, .original:focus-visible {
+.workflow button:focus-visible {
   outline: 3px solid var(--ifm-color-primary);
   outline-offset: 3px;
 }

@@ -1,0 +1,44 @@
+:root {
+  --ais-chat-width: 420px;
+  --ais-primary-color-rgb: 47, 125, 92;
+  --ais-z-index-chat: 210;
+}
+[data-theme='dark'] {
+  --ais-text-color-rgb: 232, 237, 233;
+  --ais-muted-color-rgb: 162, 175, 168;
+  --ais-background-color-rgb: 27, 30, 29;
+  --ais-border-color-rgb: 67, 79, 72;
+  --ais-primary-color-rgb: 66, 154, 113;
+}
+.phenoworks-chat { font-family: var(--ifm-font-family-base); }
+.phenoworks-chat, .phenoworks-chat-trigger { --ais-primary-color-rgb: 47, 125, 92; }
+.phenoworks-chat-trigger.ais-ChatToggleButton--open { transform: none; }
+.phenoworks-chat .ais-Chat-container { height: 100%; border-left: 1px solid var(--ifm-color-emphasis-200); }
+.phenoworks-chat .ais-ChatHeader { padding: 20px 16px; }
+.phenoworks-chat-trigger { width: auto; min-width: 172px; border-radius: 999px; padding: 14px 20px; box-shadow: 0 5px 24px #123c2b30; }
+.phenoworks-chat-trigger-label { display: flex; gap: 10px; align-items: center; font-weight: 650; white-space: nowrap; }
+.phenoworks-chat-trigger-label > span { font-size: 22px; }
+.phenoworks-chat-welcome { padding: 28px 10px; }
+.phenoworks-chat-eyebrow { color: var(--ifm-color-primary); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+.phenoworks-chat-welcome h2 { margin-top: 14px; font-size: 25px; letter-spacing: -.03em; }
+.phenoworks-chat-welcome p { font-size: 14px; line-height: 1.65; color: var(--ifm-color-emphasis-700); }
+.phenoworks-chat-welcome small { display: block; margin-top: 22px; color: var(--ifm-color-emphasis-600); font-size: 12px; }
+.phenoworks-chat-questions { display: grid; gap: 10px; margin-top: 26px; }
+.phenoworks-chat-questions button { display: flex; justify-content: space-between; gap: 15px; padding: 14px; border: 1px solid var(--ifm-color-emphasis-200); border-radius: 10px; background: var(--ifm-background-surface-color); color: var(--ifm-font-color-base); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.phenoworks-chat-questions button:hover { border-color: var(--ifm-color-primary); }
+.phenoworks-chat button:focus-visible, .phenoworks-chat-trigger:focus-visible { outline: 2px solid var(--ifm-color-primary); outline-offset: 3px; }
+.phenoworks-chat-error { padding: 16px; border: 1px solid var(--ifm-color-emphasis-300); border-radius: 10px; font-size: 14px; }
+.phenoworks-chat-error p { margin: 8px 0; }
+.phenoworks-chat-error button { color: var(--ifm-color-primary); background: none; border: 0; padding: 4px 0; font: inherit; cursor: pointer; text-decoration: underline; }
+.phenoworks-chat-source { padding: 14px; font-size: 13px; }
+.phenoworks-chat-source small { display: block; font-size: 9px; letter-spacing: .08em; margin-bottom: 8px; }
+.phenoworks-chat-source a { display: block; font-weight: 600; }
+.phenoworks-chat-source p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin: 8px 0 0; }
+@media (max-width: 680px) {
+  body:has(.phenoworks-chat) { margin-right: 0 !important; }
+  .phenoworks-chat { height: 100dvh; }
+  .phenoworks-chat-trigger.ais-ChatToggleButton--open { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .phenoworks-chat, .phenoworks-chat * { transition: none !important; scroll-behavior: auto !important; }
+}

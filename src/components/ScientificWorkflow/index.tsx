@@ -2,7 +2,6 @@
 
 import {useId, useRef, useState, type ReactNode} from 'react';
 import Link from '@docusaurus/Link';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import {learning, outcomes, stages, type WorkflowFeature} from './features';
 import {featureCaptions} from './presentation';
@@ -18,7 +17,6 @@ export default function ScientificWorkflow(): ReactNode {
   const titleId = `${instanceId}-title`;
   const dialogId = `${instanceId}-details`;
   const dialogTitleId = `${instanceId}-detail-title`;
-  const imageSrc = useBaseUrl('/img/phenoworks-scientific-workflow.png');
 
   /** Open the modal for feature, which supplies its title, capabilities, and example. */
   function showFeature(feature: WorkflowFeature): void {
@@ -34,7 +32,6 @@ export default function ScientificWorkflow(): ReactNode {
           <h2 id={titleId}>From data to scientific discovery</h2>
           <p>Bring your data together, turn it into meaningful measurements, and work with an AI assistant to analyze results and develop research outputs. Select any feature below to explore how it works and see an example.</p>
         </div>
-        <a className={styles.original} href={imageSrc} target="_blank" rel="noreferrer">View original diagram ↗</a>
       </header>
 
       <div className={styles.stages}>
