@@ -71,7 +71,7 @@ function ThinkingLoader({translations}: LoaderProps): React.JSX.Element {
   }, []);
 
   return <div className="phenoworks-chat-loader">
-    <PhenoNinja state="thinking" size={30} />
+    <PhenoNinja state="thinking" variant="head" size={30} />
     <span>{translations?.loaderText ?? 'Looking through the documentation…'}</span>
   </div>;
 }
@@ -81,7 +81,7 @@ function TriggerLabel({isOpen}: {isOpen: boolean}): React.JSX.Element {
   const thinking = useChatThinking();
   const state = thinking ? 'thinking' : isOpen ? 'open' : 'idle';
   return <span className="phenoworks-chat-trigger-label">
-    <PhenoNinja state={state} size={96} />
+    <PhenoNinja state={state} size={130} />
     <span className="phenoworks-chat-trigger-text">{thinking ? 'Thinking…' : isOpen ? 'Close chat' : 'Ask PhenoWorks'}</span>
   </span>;
 }

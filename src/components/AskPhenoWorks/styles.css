@@ -28,11 +28,28 @@
    `.ais-ChatToggleButton svg { width: … }`, so the size is set here to win. */
 /* No CSS `filter` here: a filter combined with the transform below rasterises
    the mascot and visibly softens it. The contact shadow is drawn in the SVG. */
-.phenoworks-chat-trigger .phenoninja { position: absolute; right: -4px; bottom: calc(100% - 15px); width: 96px; height: 96px; pointer-events: none; transform: rotate(-7deg); transition: transform .25s ease; }
+/* The mascot stands BEHIND the pill. A negative z-index child still paints
+   above its parent's own background, so the pill is drawn as a pseudo-element
+   that can sit above the mascot in the same stacking context. */
+/* !important because Infima's own .button--primary rule wins on specificity,
+   and if the button keeps ANY background of its own the mascot cannot go
+   behind it — a negative-z child paints above its parent's background. */
+.phenoworks-chat-trigger { background: transparent !important; }
+.phenoworks-chat-trigger::before { content: ''; position: absolute; inset: 0; z-index: 0; border-radius: 999px; background: rgb(var(--ais-primary-color-rgb)); transition: background-color .2s ease; }
+.phenoworks-chat-trigger:hover::before { background: #348a65; }
+.phenoworks-chat-trigger-label { position: relative; z-index: 1; }
+/* Room to the right of the pill, so the mascot can straddle its edge without
+   being clipped by the screen. */
+.phenoworks-chat-trigger.ais-ChatToggleButton--floating { --ais-chat-margin: 58px; }
+/* Height drives the size; width follows the artwork's ratio. Raise `bottom`
+   to hide less of the body behind the pill. */
+.phenoworks-chat-trigger .phenoninja { position: absolute; z-index: -1; right: -77px; bottom: calc(100% - 25px); height: 130px; width: auto; pointer-events: none; transform: rotate(-5deg); transition: transform .25s ease; }
 .phenoworks-chat-trigger .phenoninja--open { transform: rotate(0deg); }
-.phenoworks-chat-trigger:hover .phenoninja { transform: rotate(-2deg) translateY(-3px); }
+.phenoworks-chat-trigger:hover .phenoninja { transform: rotate(-1deg) translateY(-4px); }
 .phenoworks-chat-loader { display: flex; gap: 10px; align-items: center; padding: 6px 2px; color: var(--ifm-color-emphasis-700); font-size: 14px; }
-.phenoworks-chat-loader .phenoninja { width: 30px; height: 30px; --phenoninja-shadow: transparent; --phenoninja-hood: var(--ifm-color-primary); --phenoninja-band: var(--ifm-color-primary-lightest); --phenoninja-slit: #ffffff; --phenoninja-eye: var(--ifm-color-primary-darkest); --phenoninja-leaf: #ffffff; --phenoninja-outline: transparent; }
+/* At 32px the line work and shading turn to mud, so the head runs flat here. */
+.phenoworks-chat-loader .phenoninja { height: 32px; width: auto; --phenoninja-shadow: transparent; --phenoninja-ink: transparent; --phenoninja-hood: var(--ifm-color-primary); --phenoninja-hood-light: var(--ifm-color-primary); --phenoninja-band: var(--ifm-color-primary-lightest); --phenoninja-slit: #ffffff; --phenoninja-eye: var(--ifm-color-primary-darkest); --phenoninja-leaf: #ffffff; --phenoninja-outline: transparent; }
+.phenoworks-chat-loader .phenoninja .phenoninja__cheek, .phenoworks-chat-loader .phenoninja .phenoninja__bandShade { fill: transparent; }
 .phenoworks-chat-welcome { padding: 28px 10px; }
 .phenoworks-chat-eyebrow { color: var(--ifm-color-primary); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
 .phenoworks-chat-welcome h2 { margin-top: 14px; font-size: 25px; letter-spacing: -.03em; }
@@ -54,7 +71,8 @@
   .phenoworks-chat { height: 100dvh; }
   .phenoworks-chat-trigger.ais-ChatToggleButton--open { display: none; }
   .phenoworks-chat-trigger { min-width: 0; padding: 11px 18px; }
-  .phenoworks-chat-trigger .phenoninja { width: 68px; height: 68px; right: -2px; bottom: calc(100% - 11px); }
+  .phenoworks-chat-trigger.ais-ChatToggleButton--floating { --ais-chat-margin: 40px; }
+  .phenoworks-chat-trigger .phenoninja { height: 92px; width: auto; right: -32px; bottom: calc(100% - 10px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .phenoworks-chat, .phenoworks-chat * { transition: none !important; scroll-behavior: auto !important; }
