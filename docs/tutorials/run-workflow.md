@@ -1,4 +1,4 @@
-# Tutorial: Running a Workflow
+# Tutorial: Running Analysis Workflows
 
 Install an analysis module, build a one-step pipeline around it, and run it
 against a dataset. This example uses the **NDVI Index** module to calculate

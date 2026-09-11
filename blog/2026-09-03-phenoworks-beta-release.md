@@ -43,7 +43,7 @@ The agent can help choose a suitable method, check its inputs, run a compatible 
 
 **PhenoWorks MCP** (`phenoworks-mcp`) provides the Model Context Protocol connection between compatible AI assistants and the PhenoWorks API. Its tools support finding datasets, inspecting analysis blocks, validating and running pipelines, tracking jobs, and retrieving outputs within the user's access permissions.
 
-Learn more about the [PhenoWorks Agent](/docs/features/phenoworks-agent) and its connected tools.
+Learn more about the [PhenoWorks Agent](/docs/tutorials/analyze-with-agent) and its connected tools.
 
 ## Research outputs
 

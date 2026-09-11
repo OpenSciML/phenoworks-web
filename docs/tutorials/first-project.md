@@ -16,6 +16,10 @@ Create the first project and study that will hold datasets and plot assets.
 ## Steps
 
 1. Sign in.
+
+![login-page](../images/tutorials/first-project/login-form.webp)
+
+
 2. Open **Projects**.
 3. Select **New project**.
 4. Fill in the name, owner, and description.

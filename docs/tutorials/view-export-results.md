@@ -63,5 +63,5 @@ An MCP client can use `list_artifacts` and `download_artifact`. Downloaded files
 are stored on the MCP host, which may differ from your laptop. The browser's
 download action saves files through your browser.
 
-Use the reviewed evidence for [downstream analysis](../features/results-exports.md)
-or [drafting a research section](draft-research-sections.md).
+Use the reviewed evidence for [downstream analysis](analyze-with-agent.md)
+or drafting a research section.

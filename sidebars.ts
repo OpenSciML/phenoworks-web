@@ -31,9 +31,7 @@ const sidebars: SidebarsConfig = {
       label: 'Advanced Tutorials',
       collapsed: true,
       items: [
-        'tutorials/configure-settings',
-        'tutorials/connect-mcp',
-        'tutorials/draft-research-sections',
+        'tutorials/build-custom-lgopy-blocks',
       ],
     },
   ],

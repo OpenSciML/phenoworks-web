@@ -111,11 +111,11 @@ const config: Config = {
           items: [
             {
               label: 'Getting Started',
-              to: '/docs/getting-started',
+              to: '/docs/tutorials/first-project',
             },
             {
-              label: 'Install on Windows',
-              to: '/blog/install-phenoworks-on-windows',
+              label: 'First Project',
+              to: '/docs/tutorials/first-project',
             },
           ],
         },
@@ -123,16 +123,16 @@ const config: Config = {
           title: 'Platform',
           items: [
             {
-              label: 'Dataset Editor',
-              to: '/docs/features/dataset-editor',
+              label: 'Import Data',
+              to: '/docs/tutorials/import-data',
             },
             {
-              label: 'Analysis Modules',
-              to: '/docs/features/analysis-modules',
+              label: 'Run a Workflow',
+              to: '/docs/tutorials/run-workflow',
             },
             {
-              label: 'Analysis Pipelines',
-              to: '/docs/features/analysis-pipelines',
+              label: 'View & Export Results',
+              to: '/docs/tutorials/view-export-results',
             },
           ],
         },
@@ -154,7 +154,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} PhenoWorks contributors. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} PhenoWorks contributors`,
     },
     prism: {
       theme: prismThemes.github,
