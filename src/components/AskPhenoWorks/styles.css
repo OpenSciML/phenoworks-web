@@ -16,10 +16,16 @@
 .phenoworks-chat .ais-Chat-container { height: 100%; border-left: 1px solid var(--ifm-color-emphasis-200); }
 .phenoworks-chat .ais-ChatHeader { padding: 20px 16px; }
 /* The trigger is position:fixed, so the mascot can perch outside it. */
-.phenoworks-chat-trigger { width: auto; min-width: 186px; border-radius: 999px; padding: 13px 24px; overflow: visible; box-shadow: 0 5px 24px #123c2b30; animation: phenoworks-chat-attention 7s ease-in-out infinite; }
+.phenoworks-chat-trigger { width: auto; min-width: 244px; border-radius: 999px; padding: 11px 26px; overflow: visible; box-shadow: 0 5px 24px #123c2b30; animation: phenoworks-chat-attention 7s ease-in-out infinite; }
 .phenoworks-chat-trigger:hover { animation-play-state: paused; box-shadow: 0 8px 28px #123c2b45; }
 .phenoworks-chat-trigger.ais-ChatToggleButton--open { animation: none; }
 .phenoworks-chat-trigger-label { display: flex; justify-content: center; align-items: center; font-weight: 650; white-space: nowrap; }
+/* Two-line label: the action, then the standing invitation. */
+.phenoworks-chat-trigger-text { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; line-height: 1.25; }
+.phenoworks-chat-trigger-text strong { font-size: 15px; font-weight: 700; }
+/* "Greyed" on a green pill means a dialled-back white — a true grey would
+   muddy against the fill rather than recede from it. */
+.phenoworks-chat-trigger-sub { font-size: 12.5px; font-weight: 500; color: rgba(255, 255, 255, .74); }
 @keyframes phenoworks-chat-attention {
   0%, 80%, 100% { box-shadow: 0 5px 24px #123c2b30, 0 0 0 0 rgba(47, 125, 92, .45); }
   90% { box-shadow: 0 5px 24px #123c2b30, 0 0 0 10px rgba(47, 125, 92, 0); }
@@ -46,6 +52,26 @@
 .phenoworks-chat-trigger .phenoninja { position: absolute; z-index: -1; right: -77px; bottom: calc(100% - 25px); height: 130px; width: auto; pointer-events: none; transform: rotate(-5deg); transition: transform .25s ease; }
 .phenoworks-chat-trigger .phenoninja--open { transform: rotate(0deg); }
 .phenoworks-chat-trigger:hover .phenoninja { transform: rotate(-1deg) translateY(-4px); }
+/* ---------- PhenoNinja's greeting bubble ---------- */
+/* Sits left of the mascot's head. The offsets track the trigger's margin and
+   the mascot's own right/bottom above — move those and this follows. */
+/* One short line, gone in seven seconds. No close button: it leaves on its own
+   sooner than most people would reach for an ×. The fade-out delay below must
+   stay in step with GREETING_LINGER in index.tsx. */
+.phenoworks-greeting { position: fixed; right: 118px; bottom: 156px; z-index: var(--ais-z-index-chat); max-width: min(230px, calc(100vw - 160px)); padding: 11px 16px; border: 0; border-radius: 16px 16px 4px 16px; background: var(--ifm-background-surface-color, #ffffff); box-shadow: 0 10px 30px rgb(6 30 20 / 26%), 0 0 0 1px var(--ifm-color-emphasis-200); color: var(--ifm-font-color-base); font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; animation: phenoworks-greeting-in .38s cubic-bezier(.2,.9,.3,1.2) both, phenoworks-greeting-out .5s ease-in 6.5s both; }
+.phenoworks-greeting:hover { color: var(--ifm-color-primary); }
+/* The tail, pointing at the mascot. */
+.phenoworks-greeting::after { content: ''; position: absolute; right: -7px; bottom: 12px; width: 14px; height: 14px; background: inherit; border-right: 1px solid var(--ifm-color-emphasis-200); border-bottom: 1px solid var(--ifm-color-emphasis-200); transform: rotate(-45deg); border-bottom-right-radius: 3px; }
+@keyframes phenoworks-greeting-in {
+  from { opacity: 0; transform: translate(10px, 6px) scale(.94); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes phenoworks-greeting-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translate(6px, 4px) scale(.96); }
+}
+/* Nothing to introduce once the panel is already open. */
+body:has(.ais-ChatSidePanelLayout .ais-Chat-container--open) .phenoworks-greeting { display: none; }
 .phenoworks-chat-loader { display: flex; gap: 10px; align-items: center; padding: 6px 2px; color: var(--ifm-color-emphasis-700); font-size: 14px; }
 /* At 32px the line work and shading turn to mud, so the head runs flat here. */
 .phenoworks-chat-loader .phenoninja { height: 32px; width: auto; --phenoninja-shadow: transparent; --phenoninja-ink: transparent; --phenoninja-hood: var(--ifm-color-primary); --phenoninja-hood-light: var(--ifm-color-primary); --phenoninja-band: var(--ifm-color-primary-lightest); --phenoninja-slit: #ffffff; --phenoninja-eye: var(--ifm-color-primary-darkest); --phenoninja-leaf: #ffffff; --phenoninja-outline: transparent; }
@@ -71,10 +97,15 @@
   .phenoworks-chat { height: 100dvh; }
   .phenoworks-chat-trigger.ais-ChatToggleButton--open { display: none; }
   .phenoworks-chat-trigger { min-width: 0; padding: 11px 18px; }
+  /* The pill has to stay compact next to a phone's content. */
+  .phenoworks-chat-trigger-sub { display: none; }
   .phenoworks-chat-trigger.ais-ChatToggleButton--floating { --ais-chat-margin: 40px; }
   .phenoworks-chat-trigger .phenoninja { height: 92px; width: auto; right: -32px; bottom: calc(100% - 10px); }
+  /* No room beside the mascot on a phone; it would cover the page. */
+  .phenoworks-greeting { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .phenoworks-chat, .phenoworks-chat * { transition: none !important; scroll-behavior: auto !important; }
   .phenoworks-chat-trigger { animation: none !important; }
+  .phenoworks-greeting { animation: none !important; }
 }
