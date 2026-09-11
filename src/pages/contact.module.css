@@ -126,6 +126,24 @@
   border-color: #c1443c;
 }
 
+/* A native select ignores most inherited styling, so the chrome is redrawn
+   here: the arrow is an inline SVG so it follows the theme's text colour
+   instead of staying black on a dark card. */
+.select {
+  appearance: none;
+  padding-right: 2.4rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23808b85' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  background-size: 0.7rem;
+  cursor: pointer;
+}
+
+/* Grey the placeholder row until a real choice is made. */
+.select:invalid {
+  color: var(--ifm-color-emphasis-600);
+}
+
 .textarea {
   min-height: 9rem;
   resize: vertical;
