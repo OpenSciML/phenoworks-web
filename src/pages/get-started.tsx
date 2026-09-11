@@ -110,8 +110,11 @@ export default function GetStarted(): ReactNode {
                 href={SIGNUP_FORM_URL}>
                 Request access
               </Link>
+              {/* A form gating access reads as "sales call" unless the price
+                  question is answered right here, at the moment it forms. */}
               <p className={styles.signupMeta}>
-                Takes about two minutes.
+                <strong className={styles.signupFree}>Free to use</strong>{' '}
+                — takes about five minutes to get started.
               </p>
 
               <hr className={styles.signupDivider} />

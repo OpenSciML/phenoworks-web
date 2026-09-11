@@ -121,7 +121,14 @@
   margin: 0.85rem 0 0;
   color: var(--ifm-color-emphasis-600);
   font-size: 0.85rem;
+  line-height: 1.55;
   text-align: center;
+}
+
+/* Carries the weight of the sentence, so the answer lands before the detail. */
+.signupFree {
+  color: var(--ifm-color-primary);
+  font-weight: 700;
 }
 
 .signupDivider {
