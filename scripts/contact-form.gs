@@ -47,6 +47,12 @@ const MIN_FILL_MS = 2500;
 /** Guard rails so a bad actor cannot write a novel into the sheet. */
 const MAX_LENGTHS = {name: 120, email: 200, message: 5000};
 
+/** Accepted values for the topic dropdown. Keep in step with TOPICS in src/pages/contact.tsx. */
+const TOPICS = ['General question', 'Feedback', 'Code issue'];
+
+/** Column order. Changing this needs a matching change to the sheet's header row. */
+const HEADER = ['Timestamp', 'Name', 'Email', 'Topic', 'Message'];
+
 /**
  * Handle a POST from the website's contact form.
  *
@@ -75,10 +81,14 @@ function doPost(e) {
 
     const name = String(data.name || '').trim();
     const email = String(data.email || '').trim();
+    const topic = String(data.topic || '').trim();
     const message = String(data.message || '').trim();
 
-    if (!name || !email || !message) {
+    if (!name || !email || !topic || !message) {
       return jsonResponse({ok: false, error: 'Please fill in every field.'});
+    }
+    if (TOPICS.indexOf(topic) === -1) {
+      return jsonResponse({ok: false, error: 'Pick one of the listed topics.'});
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       return jsonResponse({ok: false, error: 'That email address looks wrong.'});
@@ -91,7 +101,7 @@ function doPost(e) {
       return jsonResponse({ok: false, error: 'That message is too long.'});
     }
 
-    appendRow([new Date(), name, email, message]);
+    appendRow([new Date(), name, email, topic, message]);
     return jsonResponse({ok: true});
   } catch (error) {
     // Never echo the raw error to the browser; log it for the sheet owner.
@@ -118,7 +128,12 @@ function appendRow(row) {
       sheet = spreadsheet.insertSheet(SHEET_NAME);
     }
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow(['Timestamp', 'Name', 'Email', 'Message']);
+      sheet.appendRow(HEADER);
+      sheet.setFrozenRows(1);
+    } else if (sheet.getLastColumn() < HEADER.length) {
+      // The header predates a column being added. Widen it rather than
+      // rewriting row 1, so existing rows keep their alignment.
+      sheet.getRange(1, 1, 1, HEADER.length).setValues([HEADER]);
       sheet.setFrozenRows(1);
     }
     sheet.appendRow(row);

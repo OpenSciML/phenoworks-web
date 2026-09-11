@@ -11,9 +11,12 @@ import styles from './contact.module.css';
  * and its one-time setup steps.
  */
 const CONTACT_ENDPOINT =
-  'https://script.google.com/macros/s/AKfycbwCXG1nu1DAiOVSzRBls_lIc8WNUsOwpWeH3nM0dUoFS7o5t75y9WqWdnYG3W2wr2vf/exec';
+  'https://script.google.com/macros/s/AKfycbxrHnVfEubQWFFpbvlKipBegXIoe4_IuHk77Vajk_zycJQ51vulQ-pe56GqpWLY7oai/exec';
 
 const MESSAGE_MAX_LENGTH = 5000;
+
+/** Kept in step with TOPICS in scripts/contact-form.gs, which rejects anything else. */
+const TOPICS = ['General question', 'Feedback', 'Code issue'] as const;
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -87,13 +90,11 @@ export default function Contact(): ReactNode {
             </p>
 
             <dl className={styles.alt}>
-              <dt className={styles.altTerm}>Found a bug in the code?</dt>
+              <dt className={styles.altTerm}>Found a bug?</dt>
               <dd className={styles.altDetail}>
-                Opening a{' '}
-                <Link href="https://github.com/OpenSciML/phenoworks-web/issues">
-                  GitHub issue
-                </Link>{' '}
-                gets a technical problem in front of the developers fastest.
+                Send it through this form and pick <strong>Code issue</strong>.
+                Tell us what you did, what you expected, and what happened
+                instead — that is usually enough for us to reproduce it.
               </dd>
 
               <dt className={styles.altTerm}>Want to try PhenoWorks?</dt>
@@ -117,8 +118,8 @@ export default function Contact(): ReactNode {
                   <h2 className={styles.successTitle}>Thanks — that reached us.</h2>
                   <p className={styles.successBody}>
                     Your message is with the PhenoWorks team. If you asked
-                    something that needs an answer, we will reply to the address
-                    you gave.
+                    something that needs an answer, please give us 36–48 hours
+                    to reply to the address you gave.
                   </p>
                   <button
                     type="button"
@@ -165,6 +166,28 @@ export default function Contact(): ReactNode {
                   </div>
 
                   <div className={styles.field}>
+                    <label className={styles.label} htmlFor="contact-topic">
+                      What is this about? <span aria-hidden="true">*</span>
+                    </label>
+                    <select
+                      className={`${styles.input} ${styles.select}`}
+                      id="contact-topic"
+                      name="topic"
+                      defaultValue=""
+                      required
+                      disabled={sending}>
+                      <option value="" disabled>
+                        Choose one…
+                      </option>
+                      {TOPICS.map((topic) => (
+                        <option key={topic} value={topic}>
+                          {topic}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.field}>
                     <label className={styles.label} htmlFor="contact-message">
                       Message <span aria-hidden="true">*</span>
                     </label>
@@ -202,7 +225,7 @@ export default function Contact(): ReactNode {
                     {status === 'error' ? (
                       <span className={styles.errorText}>{error}</span>
                     ) : (
-                      'Goes to the PhenoWorks team, not to an individual.'
+                      'Please give the team 36–48 hours to get back to you.'
                     )}
                   </p>
                 </form>
