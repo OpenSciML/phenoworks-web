@@ -67,29 +67,67 @@
 /* Primary hero call to action: solid brand green, sized up so it reads as the
    single next step against the hero image in both light and dark mode. */
 .actions .primaryCta {
-  padding: 1rem 2.75rem;
-  border: 2px solid rgba(255, 255, 255, 0.22);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1.2rem 3.3rem;
+  border: 2px solid rgba(255, 255, 255, 0.26);
   border-radius: 999px;
   background: #2f7d5c;
   color: #ffffff;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  line-height: 1.2;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.38),
+    0 0 0 0 rgba(111, 211, 165, 0.5);
   transition:
     background-color 150ms ease,
     box-shadow 150ms ease,
     transform 150ms ease;
+  /* One slow ring every 6s. Enough to pull the eye to the primary action
+     without the restlessness of a continuous pulse. */
+  animation: heroCtaBeacon 6s ease-out infinite;
+}
+
+/* The arrow states the action is forward motion, not just a label. */
+.ctaArrow {
+  display: inline-block;
+  font-size: 1.15em;
+  line-height: 1;
+  transition: transform 180ms ease;
+}
+
+@keyframes heroCtaBeacon {
+  0%,
+  70%,
+  100% {
+    box-shadow:
+      0 14px 34px rgba(0, 0, 0, 0.38),
+      0 0 0 0 rgba(111, 211, 165, 0.5);
+  }
+  85% {
+    box-shadow:
+      0 14px 34px rgba(0, 0, 0, 0.38),
+      0 0 0 16px rgba(111, 211, 165, 0);
+  }
 }
 
 .actions .primaryCta:hover,
 .actions .primaryCta:focus-visible {
-  background: #348a65;
-  border-color: rgba(255, 255, 255, 0.45);
+  background: #37936c;
+  border-color: rgba(255, 255, 255, 0.5);
   color: #ffffff;
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.4);
-  transform: translateY(-2px);
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.44);
+  transform: translateY(-3px);
   text-decoration: none;
+  animation-play-state: paused;
+}
+
+.actions .primaryCta:hover .ctaArrow,
+.actions .primaryCta:focus-visible .ctaArrow {
+  transform: translateX(4px);
 }
 
 .actions .primaryCta:active {
@@ -98,8 +136,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .actions .primaryCta {
+  .actions .primaryCta,
+  .ctaArrow {
     transition: none;
+    animation: none;
   }
 
   .actions .primaryCta:hover,

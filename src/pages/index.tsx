@@ -38,6 +38,9 @@ export default function Home(): ReactNode {
                 className={`button button--primary button--lg ${styles.primaryCta}`}
                 to="/get-started">
                 Get Started
+                <span className={styles.ctaArrow} aria-hidden="true">
+                  →
+                </span>
               </Link>
             </div>
           </div>
