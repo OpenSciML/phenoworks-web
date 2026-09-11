@@ -7,29 +7,130 @@
 
 .phenoninja {
   --phenoninja-hood: #10382a;
+  --phenoninja-hood-light: #1d5340;
+  --phenoninja-jacket: #10392a;
+  --phenoninja-jacket-light: #1c5641;
+  --phenoninja-glove: #0a2c20;
   --phenoninja-band: #6fd3a5;
   --phenoninja-slit: #f6f3e9;
   --phenoninja-eye: #10382a;
   --phenoninja-leaf: #f6f3e9;
   --phenoninja-outline: rgba(255, 255, 255, 0.42);
   --phenoninja-shadow: rgba(4, 22, 15, 0.34);
+  /* Line work. Semi-transparent so it reads as drawn shading rather than as
+     hard vector lineart sitting on top of the fills. */
+  --phenoninja-ink: rgba(3, 18, 12, 0.55);
+
+  /* Logo palette, for the chest mark. */
+  --phenoninja-teal: #097a77;
+  --phenoninja-blue: #2c869c;
+  --phenoninja-olive: #6fa835;
 
   display: block;
   flex: none;
-  /* The hop and the thought dots reach outside the viewBox. */
+  /* The hop, the raised arm and the thought dots all reach outside the box. */
   overflow: visible;
+}
+
+/* The head crop is a tighter viewBox over the same artwork, so the torso has
+   to be clipped away rather than allowed to spill. */
+.phenoninja--head {
+  overflow: hidden;
 }
 
 .phenoninja__shadow {
   fill: var(--phenoninja-shadow);
 }
 
-.phenoninja__hood {
-  fill: var(--phenoninja-hood);
+/* Gradient stops. Keeping the colours here rather than on the <stop> elements
+   means the theme variables above still control the whole palette. */
+.phenoninja__stop--hoodTop {
+  stop-color: var(--phenoninja-hood-light);
 }
 
-.phenoninja__band {
+.phenoninja__stop--hoodBottom {
+  stop-color: var(--phenoninja-hood);
+}
+
+.phenoninja__stop--jacketTop {
+  stop-color: var(--phenoninja-jacket-light);
+}
+
+.phenoninja__stop--jacketBottom {
+  stop-color: var(--phenoninja-jacket);
+}
+
+/* Outlined shapes. The fills come from gradients set on the elements. */
+.phenoninja__hood,
+.phenoninja__jacket,
+.phenoninja__sleeve {
+  stroke: var(--phenoninja-ink);
+  stroke-width: 1.1;
+}
+
+.phenoninja__glove {
+  fill: var(--phenoninja-glove);
+  stroke: var(--phenoninja-ink);
+  stroke-width: 0.9;
+}
+
+.phenoninja__band,
+.phenoninja__cuff,
+.phenoninja__collar {
   fill: var(--phenoninja-band);
+}
+
+.phenoninja__cuff,
+.phenoninja__collar {
+  stroke: var(--phenoninja-ink);
+  stroke-width: 0.9;
+}
+
+/* Where the headband meets the eye slit. */
+.phenoninja__bandShade {
+  fill: rgba(3, 18, 12, 0.22);
+}
+
+/* Shading down one cheek, so the face is lit from one side. */
+.phenoninja__cheek {
+  fill: rgba(3, 18, 12, 0.09);
+}
+
+.phenoninja__lapel {
+  fill: none;
+  stroke: var(--phenoninja-ink);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+}
+
+.phenoninja__zipPull {
+  fill: var(--phenoninja-band);
+}
+
+/* ---------- Chest emblem: the PhenoWorks mark ---------- */
+
+.phenoninja__emblemLeafTeal {
+  fill: var(--phenoninja-teal);
+}
+
+.phenoninja__emblemLeafOlive,
+.phenoninja__emblemSlabTop {
+  fill: var(--phenoninja-olive);
+}
+
+.phenoninja__emblemSlabBase {
+  fill: var(--phenoninja-blue);
+}
+
+.phenoninja__emblemStem {
+  fill: none;
+  stroke: var(--phenoninja-teal);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+}
+
+.phenoninja__emblemBud {
+  fill: var(--phenoninja-olive);
 }
 
 .phenoninja__slit {
@@ -42,6 +143,19 @@
 
 .phenoninja__eye {
   fill: var(--phenoninja-eye);
+}
+
+.phenoninja__zip,
+.phenoninja__stripe {
+  fill: none;
+  stroke: var(--phenoninja-band);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.phenoninja__stripe {
+  stroke-width: 1.6;
+  opacity: 0.85;
 }
 
 .phenoninja__outline {
@@ -73,7 +187,8 @@
 .phenoninja__bob,
 .phenoninja__eye,
 .phenoninja__tail,
-.phenoninja__thought {
+.phenoninja__thought,
+.phenoninja__arm {
   transform-box: fill-box;
 }
 
@@ -81,54 +196,89 @@
   transform-origin: 50% 100%;
 }
 
+/* A touch of roll alongside the rise, so the idle reads as breathing rather
+   than as a sprite being translated up and down. */
 .phenoninja__bob {
-  transform-origin: 50% 50%;
-  animation: phenoninja-bob 3.2s ease-in-out infinite;
+  transform-origin: 50% 90%;
+  animation: phenoninja-bob 3.4s ease-in-out infinite;
 }
 
 .phenoninja__eye {
   transform-origin: 50% 50%;
-  animation: phenoninja-blink 5.5s ease-in-out infinite;
+  animation: phenoninja-blink 4.2s ease-in-out infinite;
 }
 
 .phenoninja__eye:nth-of-type(2) {
-  animation-delay: 0.04s;
+  animation-delay: 0.03s;
 }
 
 /* Tails pivot from the temple, not from their own centre. */
 .phenoninja__tail {
   transform-origin: 0% 50%;
-  animation: phenoninja-tail 1.9s ease-in-out infinite alternate;
+  animation: phenoninja-tail 1.3s ease-in-out infinite alternate;
 }
 
+/* Deliberately not a multiple of the upper tail's duration: matching periods
+   make two ribbons look like one rigid object. */
 .phenoninja__tail--lower {
-  animation-duration: 2.3s;
-  animation-delay: 0.15s;
+  animation-duration: 1.7s;
+  animation-delay: 0.2s;
+}
+
+/* Arms hang slightly outward at rest. */
+.phenoninja__arm--wave {
+  transform: rotate(-7deg);
+}
+
+.phenoninja__arm--rest {
+  transform: rotate(7deg);
+  animation: phenoninja-sway 3.4s ease-in-out infinite;
 }
 
 .phenoninja__thought {
   transform-origin: 50% 50%;
 }
 
+/* Arms swing from the shoulder — the top of their own box, not the centre. */
+.phenoninja__arm {
+  transform-origin: 50% 8%;
+}
+
+/* Carries the arm back down when the hover animation is removed. */
+.phenoninja__arm--wave {
+  transition: transform 0.32s ease;
+}
+
 @keyframes phenoninja-bob {
   0%,
   100% {
-    transform: translateY(0.7px);
+    transform: translateY(0.7px) rotate(-1.1deg);
   }
   50% {
-    transform: translateY(-1px);
+    transform: translateY(-1.1px) rotate(1.1deg);
   }
 }
 
+/* A double blink: one quick close, a beat, then a second. A single symmetric
+   blink on a loop is the tell that something is animated rather than alive. */
 @keyframes phenoninja-blink {
   0%,
-  92% {
+  84% {
     transform: scaleY(1);
   }
-  94% {
+  86% {
+    transform: scaleY(0.08);
+  }
+  88% {
+    transform: scaleY(1);
+  }
+  93% {
+    transform: scaleY(1);
+  }
+  95% {
     transform: scaleY(0.12);
   }
-  96%,
+  97%,
   100% {
     transform: scaleY(1);
   }
@@ -136,10 +286,20 @@
 
 @keyframes phenoninja-tail {
   from {
-    transform: rotate(-5deg);
+    transform: rotate(-14deg);
   }
   to {
-    transform: rotate(6deg);
+    transform: rotate(17deg);
+  }
+}
+
+@keyframes phenoninja-sway {
+  0%,
+  100% {
+    transform: rotate(7deg);
+  }
+  50% {
+    transform: rotate(3.5deg);
   }
 }
 
@@ -156,20 +316,51 @@
     transform: translateY(0) rotate(0deg);
   }
   80% {
-    transform: translateY(-3.2px) rotate(-7deg);
+    transform: translateY(-3.2px) rotate(-5deg);
   }
   85% {
-    transform: translateY(0) rotate(5deg);
+    transform: translateY(0) rotate(4deg);
   }
   89% {
-    transform: translateY(-1.6px) rotate(-3deg);
+    transform: translateY(-1.6px) rotate(-2deg);
   }
   93% {
     transform: translateY(0) rotate(0deg);
   }
 }
 
-/* Hover on the host control: perk up rather than restart the whole cycle. */
+/* ---------- Hover on the host control: wave ---------- */
+
+/* Plays once and holds the arm up; the transition above lowers it on mouse-out.
+   Looping would replay the raise each cycle, which reads as a twitch. */
+.phenoworks-chat-trigger:hover .phenoninja--idle .phenoninja__arm--wave {
+  animation: phenoninja-wave 1.6s ease-in-out both;
+}
+
+@keyframes phenoninja-wave {
+  0% {
+    transform: rotate(-7deg);
+  }
+  18% {
+    transform: rotate(142deg);
+  }
+  32% {
+    transform: rotate(124deg);
+  }
+  46% {
+    transform: rotate(150deg);
+  }
+  60% {
+    transform: rotate(126deg);
+  }
+  74% {
+    transform: rotate(146deg);
+  }
+  100% {
+    transform: rotate(138deg);
+  }
+}
+
 .phenoworks-chat-trigger:hover .phenoninja--idle .phenoninja__bob {
   animation-duration: 1.5s;
 }
@@ -182,7 +373,7 @@
 
 .phenoninja--thinking .phenoninja__hop {
   animation: none;
-  transform: rotate(-7deg);
+  transform: rotate(-6deg);
 }
 
 .phenoninja--thinking .phenoninja__bob {
@@ -208,11 +399,7 @@
 }
 
 .phenoninja--thinking .phenoninja__thought:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.phenoninja--thinking .phenoninja__thought:nth-child(3) {
-  animation-delay: 0.4s;
+  animation-delay: 0.25s;
 }
 
 @keyframes phenoninja-thought {
@@ -245,6 +432,7 @@
   .phenoninja *,
   .phenoninja {
     animation: none !important;
+    transition: none !important;
   }
 
   /* Keep the thought dots legible as a static state. */
