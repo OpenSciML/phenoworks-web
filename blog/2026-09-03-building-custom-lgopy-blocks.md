@@ -36,9 +36,62 @@ vegetation index; another summarizes measurements for each plot. When their
 inputs and outputs are compatible, the blocks can form a pipeline that a team
 can reuse across datasets.
 
+## Install LgoPy and the example dependencies
+
+You need Python 3.10 or newer and basic familiarity with Python. Create a separate
+folder and virtual environment; you do not need to clone PhenoWorks or run its
+backend to develop and test this block.
+
+```bash
+mkdir my-blocks
+cd my-blocks
+python -m venv .venv
+source .venv/bin/activate
+pip install lgopy
+pip install Pillow matplotlib
+```
+
+On Windows PowerShell, activate the environment with `.venv\Scripts\Activate.ps1`.
+
+| Package | Purpose |
+| --- | --- |
+| `lgopy` | Provides `Block`, local artifact and metadata stores, and block packaging. |
+| `Pillow` | Opens RGB images, converts color channels, and encodes the output JPEG. Its Python import name is `PIL`. |
+| `matplotlib` | Displays the original image and HSV visualization in the local demo. |
+
+Pip installs LgoPy's declared dependencies automatically. The other imports used
+below—`io`, `typing`, `logging`, `pathlib`, and `tempfile`—are part of Python's
+standard library and need no separate installation. The test is a plain Python
+script, so `pytest` is not required.
+
+You can also record the three direct dependencies in `requirements.txt`:
+
+```text
+lgopy
+Pillow
+matplotlib
+```
+
+Install them together with `pip install -r requirements.txt`. After validating
+your block, record the working environment with
+`pip freeze > requirements.lock.txt` so a colleague can install the same versions
+using `pip install -r requirements.lock.txt`.
+
+The examples below use the store-attributes API: `save(..., attributes=...)`,
+`set(..., attributes=...)`, and `get_attributes(...)`. Check that your installed
+LgoPy version provides it before running the examples:
+
+```bash
+python -c "import inspect; from lgopy.core.stores import InMemoryArtifactStore; assert 'attributes' in inspect.signature(InMemoryArtifactStore.save).parameters, 'Install a LgoPy release with store-attributes support'"
+```
+
+If this check fails, the installed release predates the required API. Upgrade
+with `pip install --upgrade lgopy` and use a release containing store-attributes
+support; the PhenoWorks runtime must support the same contract.
+
 ## Example: turn RGB images into HSV visualizations
 
-Our example, `blocks/image_analysis/image_2_hsv.py`, reads the RGB images for a
+Our example, which you will save as `image_2_hsv.py`, reads the RGB images for a
 plot and converts them to HSV: hue, saturation, and value. It then saves a
 visualization of those channels as a PhenoWorks artifact, a derived file
 associated with the processing run.
@@ -55,7 +108,9 @@ from the original data or a lossless representation rather than the JPEG.
 
 ## Read the complete block
 
-The implementation below comes from `blocks/image_analysis/image_2_hsv.py`:
+Save the following implementation as `image_2_hsv.py` in your own project.
+It matches `blocks/image_analysis/image_2_hsv.py` in the PhenoWorks repository,
+including its packaging and visual-demo entry point:
 
 ```python showLineNumbers
 from io import BytesIO
@@ -65,8 +120,15 @@ from lgopy.core import Block
 from PIL import Image as PILImage
 import logging
 
+
 class Image2HSV(Block):
-    """Create visible HSV-channel JPEG artifacts from RGB plot images."""
+    """Create visible HSV-channel JPEG artifacts from RGB plot images.
+
+    Args:
+        jpeg_quality: JPEG encoding quality for HSV visualizations.
+    """
+
+    extras = {"transform_scope": "dataset_item", "batch_independent": True}
 
     name = "image_2_hsv"
     display_name = "Image to HSV"
@@ -78,11 +140,16 @@ class Image2HSV(Block):
     logger = logging.getLogger(__name__)
 
     def __init__(
-            self,
-            jpeg_quality: Annotated[int, "JPEG quality for saved HSV artifacts"] = 95,
+        self,
+        jpeg_quality: Annotated[int, "JPEG quality for saved HSV artifacts"] = 95,
     ) -> None:
+        """Configure the block.
+
+        Args:
+            jpeg_quality: JPEG encoding quality for HSV visualizations.
+        """
         super().__init__()
-        self._jpeg_quality = jpeg_quality
+        self._jpeg_quality: int = jpeg_quality
 
     def call(self, dataset_item: dict) -> dict:
         """Convert RGB plot images into HSV-channel visualization artifacts.
@@ -99,8 +166,9 @@ class Image2HSV(Block):
 
             for rgb_asset in rgb_assets:
                 rgb_image = PILImage.open(rgb_asset["file_uri"])
-                self.logger.info(f"Processing plot {plot_id} with "
-                            f"RGB asset {rgb_asset['file_uri']}")
+                self.logger.info(
+                    f"Processing plot {plot_id} with RGB asset {rgb_asset['file_uri']}"
+                )
                 # Store a visible HSV-channel visualization as JPEG.
                 hsv_image = rgb_image.convert("HSV")
                 hsv_visual = PILImage.merge("RGB", hsv_image.split())
@@ -109,11 +177,15 @@ class Image2HSV(Block):
                 hsv_visual.save(buffer, format="JPEG", quality=self._jpeg_quality)
                 image_bytes = buffer.getvalue()
 
-                self.artifacts.save_artifact(
+                self.artifacts.save(
                     f"plot_{plot_id}_hsv_{rgb_asset['id']}.jpg",
                     data=image_bytes,
-                    artifact_type='plot_hsv_image',
-                    plot_id=plot_id if isinstance(plot_id, int) else None
+                    attributes={
+                        "artifact_type": "plot_hsv_image",
+                        "associations": {
+                            "plot_id": plot_id if isinstance(plot_id, int) else None
+                        },
+                    },
                 )
             return {
                 "status": "success",
@@ -125,8 +197,48 @@ class Image2HSV(Block):
             raise
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    # build artifact
     Image2HSV.build(output_dir="image-2-hsv-block", format="zip")
+
+    from pathlib import Path
+    import matplotlib.pyplot as plt
+    from lgopy.core.stores import InMemoryArtifactStore, InMemoryMetadataStore
+
+    artifacts = InMemoryArtifactStore()
+    metadata = InMemoryMetadataStore()
+
+    block = Image2HSV()
+    block.artifacts = artifacts
+    block.metadata = metadata
+
+    image_path = Path(__file__).resolve().parent / "test_images" / "img.png"
+    result = block.call(
+        {
+            "plot_id": 101,
+            "plot": {"name": "Plot 101"},
+            "assets": {
+                "rgb": [{"id": 1, "file_uri": str(image_path)}],
+            },
+        }
+    )
+    metadata.set("test.result", result)
+    print("Artifacts:", list(artifacts.all()))
+    print("Metadata:", metadata.all())
+
+    figure, axes = plt.subplots(1, 2, figsize=(12, 6))
+    with PILImage.open(image_path) as image:
+        axes[0].imshow(image.convert("RGB"))
+    axes[0].set_title("Original RGB image")
+
+    # This JPEG maps H, S, V to R, G, B for visualization; it is not RGB color.
+    with PILImage.open(artifacts.as_bytes_io("plot_101_hsv_1.jpg")) as image:
+        axes[1].imshow(image)
+    axes[1].set_title("HSV channels (R=Hue, G=Saturation, B=Value)")
+    for axis in axes:
+        axis.axis("off")
+    figure.tight_layout()
+    plt.show()
 ```
 
 ## Define the method and its settings
@@ -175,7 +287,7 @@ For each RGB asset, `call(...)`:
 2. Converts it to HSV and splits the three channels.
 3. Combines those channels into a viewable RGB image.
 4. Encodes the visualization as a JPEG using `self._jpeg_quality`.
-5. Saves the bytes through `self.artifacts.save_artifact(...)`.
+5. Saves the bytes through `self.artifacts.save(..., attributes=...)`.
 
 A file named `plot_101_hsv_1.jpg` records both the plot and source asset identifiers.
 The artifact has the type `plot_hsv_image`; when the plot identifier is an integer,
@@ -190,16 +302,45 @@ the artifact store, while `call(...)` returns a status dictionary. A later step
 must accept that dictionary or retrieve the saved image; a step expecting a plot
 dataset item cannot use the summary directly.
 
+## Understand artifact ownership
+
+The example supplies an artifact classification and an explicit plot association:
+
+```python
+attributes={
+    "artifact_type": "plot_hsv_image",
+    "associations": {"plot_id": plot_id},
+}
+```
+
+PhenoWorks supplies pipeline, project, study, and dataset IDs through its runtime
+store. Block authors do not need to pass those IDs when saving an artifact.
+For example, `self.artifacts.save("output.jpg", image_bytes)` still creates an
+artifact associated with the current pipeline and dataset. Its default
+`artifact_type` is `lgopy_block_artifact`, and its format is inferred from the
+filename extension (`jpg` here; `bin` when there is no extension).
+
+Plot ownership is currently explicit: omitting `associations.plot_id` leaves the
+database `plot_id` empty. It is not inferred from the filename or current input.
+Only `plot_id` is accepted in `associations`; the runtime owns the other hierarchy
+IDs. Add descriptive fields separately, for example
+`"metadata": {"jpeg_quality": self._jpeg_quality}` inside `attributes`.
+
+Locally, LgoPy's in-memory store retains the bytes and attributes for inspection.
+Inside PhenoWorks, its store writes the file immediately and prepares a
+`PipelineArtifactCreateRecord`. Database persistence then records the hierarchy
+IDs, artifact type, file URI, and metadata. The local test never connects to that
+database.
+
 ## Check the block locally
 
 You can test the block without a database or a running PhenoWorks server.
-LgoPy provides in-memory artifact and metadata stores. Its artifact store exposes
-`save(...)`, while this block calls PhenoWorks' `save_artifact(...)` method, so a
-small adapter connects the two.
+LgoPy provides in-memory artifact and metadata stores that preserve the content
+and JSON-compatible attributes supplied by the block. No custom test adapter is needed.
 
 The following example creates a temporary RGB image, runs the block, and checks
-the generated JPEG. Run it from the repository root in the project's Python
-environment:
+the generated JPEG. Save it as `test_image_2_hsv.py` alongside the block and run
+`python test_image_2_hsv.py`:
 
 ```python
 from pathlib import Path
@@ -208,26 +349,10 @@ from tempfile import TemporaryDirectory
 from lgopy.core.stores import InMemoryArtifactStore, InMemoryMetadataStore
 from PIL import Image as PILImage
 
-from blocks.image_analysis.image_2_hsv import Image2HSV
+from image_2_hsv import Image2HSV
 
 
-class TestArtifactStore(InMemoryArtifactStore):
-    """Store artifact bytes in memory for local block tests."""
-
-    def save_artifact(
-        self, key: str, data: bytes, **attributes: object
-    ) -> None:
-        """Save an artifact without database persistence.
-
-        Args:
-            key: Artifact name used to retrieve the stored bytes.
-            data: Serialized artifact bytes.
-            **attributes: Database-specific attributes ignored by this test store.
-        """
-        self.save(key, data)
-
-
-artifacts = TestArtifactStore()
+artifacts = InMemoryArtifactStore()
 metadata = InMemoryMetadataStore()
 
 block = Image2HSV()
@@ -246,7 +371,7 @@ with TemporaryDirectory() as directory:
         },
     })
 
-metadata.set("test.result", result)
+metadata.set("test.result", result, attributes={"purpose": "local smoke test"})
 print(result)
 print("Artifacts:", list(artifacts.all()))
 print("Metadata:", metadata.all())
@@ -254,12 +379,19 @@ print("Metadata:", metadata.all())
 with PILImage.open(artifacts.as_bytes_io("plot_101_hsv_1.jpg")) as image:
     assert image.format == "JPEG"
     assert image.size == (32, 32)
+
+attributes = artifacts.get_attributes("plot_101_hsv_1.jpg")
+assert attributes["artifact_type"] == "plot_hsv_image"
+assert attributes["associations"] == {"plot_id": 101}
+assert metadata.get_attributes("test.result") == {"purpose": "local smoke test"}
 ```
 
-The test adapter retains the JPEG bytes but ignores database-specific attributes
-such as `artifact_type` and `plot_id`. PhenoWorks supplies its own adapter during
-pipeline execution to record those associations. Both test stores keep their
-contents only in memory; the temporary input image is removed after processing.
+The local store retains both JPEG bytes and artifact attributes. PhenoWorks
+injects its own store during pipeline execution: it writes files, queues their
+database records, and commits output records with successful pipeline completion.
+Database rollback does not undo file writes; failed runs clean up unregistered
+outputs separately. Both local test stores keep their contents in memory, and
+the temporary input image is removed after processing.
 
 `Image2HSV` does not write metadata itself. The example explicitly stores its
 result under `test.result` to demonstrate the metadata store. To try a real image,
@@ -274,10 +406,11 @@ returns:
 
 ## Build and install the block
 
-From the repository root, run the example's build entry point:
+To run the full entry point, place an RGB image at `test_images/img.png`
+relative to `image_2_hsv.py`, then run:
 
 ```bash
-uv run python blocks/image_analysis/image_2_hsv.py
+python image_2_hsv.py
 ```
 
 The `__main__` section calls
@@ -285,8 +418,34 @@ The `__main__` section calls
 package directory and a ZIP archive alongside it. The builder can replace an
 existing output directory, so keep your source files elsewhere.
 
-Install the generated ZIP from **Analysis Modules**, or install the package
-directory with the CLI:
+After building, the script attaches in-memory artifact and metadata stores,
+processes the sample as plot `101`, stores the result under `test.result`, and
+prints the stored artifacts and metadata. Matplotlib then displays the original
+image beside `plot_101_hsv_1.jpg`, with H, S, and V mapped to R, G, and B.
+
+To build without running the demo or requiring a sample image, use:
+
+```bash
+python -c 'from image_2_hsv import Image2HSV; Image2HSV.build(output_dir="image-2-hsv-block", format="zip")'
+```
+
+Before uploading, inspect the generated package's `requirements.txt` and the
+`requirements` list in `manifest.json`. Both must include compatible LgoPy and
+Pillow versions. Matplotlib is used only by the local demo; inspect whether the
+builder includes it when scanning the full source. Automatic dependency detection can miss packages whose import
+name differs from their distribution name: the current builder omitted Pillow
+when checking this example's `PIL` import.
+
+Use `pip show lgopy Pillow` to check the versions you tested. If Pillow is missing,
+add its matching `Pillow==...` requirement to both files, then recreate the ZIP
+from the corrected package directory. Preserve the package layout and other
+manifest fields. Installing Pillow locally does not automatically make it a
+declared dependency of the uploaded block. Neither Python's standard library
+nor the PhenoWorks backend belongs in this block's requirements.
+
+Upload the generated ZIP through **Analysis Modules** in a running PhenoWorks
+instance. If you administer the server, you can alternatively install the package
+directory with its CLI:
 
 ```bash
 phenoworks analysis-blocks install image-2-hsv-block
@@ -296,9 +455,9 @@ phenoworks analysis-blocks requirements image_2_hsv --version 0.1.0
 
 Once installed, inspect the package and its requirements in PhenoWorks. To
 produce the visualizations, select a compatible dataset, set `jpeg_quality`,
-and run the block in a dataset pipeline. The build command only packages the
-method. The current script also runs the local smoke test after building;
-processing a dataset starts when you run the installed block in a pipeline.
+and run the block in a dataset pipeline. The build-only command packages the
+method; running `python image_2_hsv.py` also processes the local sample.
+Processing a PhenoWorks dataset starts when you run the installed block in a pipeline.
 
 ## Reuse the pattern for feature extraction
 
@@ -311,3 +470,23 @@ Let the next research task guide the output format. Images support visual
 inspection; measurements and tables support further analysis. Clear input and
 output descriptions make it easier for another researcher to connect your block
 to a pipeline and apply the method to a new dataset.
+
+## Process large datasets in batches
+
+This example declares independent item-level execution:
+
+```python
+extras = {"transform_scope": "dataset_item", "batch_independent": True}
+```
+
+For a pipeline whose every block makes this declaration, include
+`"batch_size": 32` in the run request's `parameters` object. PhenoWorks fetches
+bounded plot pages and persists each batch's artifacts, metadata, and results.
+Files are written during processing; database records remain pending until the
+whole run succeeds. Failed attempts have their output folders cleaned up, with
+persisted cleanup tracking for worker-crash or storage-failure recovery.
+
+Do not declare batch independence for methods that fit across the dataset or
+need another batch's state. Use item-specific output keys, as this example does.
+Results remain separate per batch, and retries currently restart from the first
+batch. See [batched pipeline execution](/docs/tutorials/batched-item-pipelines) for the full contract.

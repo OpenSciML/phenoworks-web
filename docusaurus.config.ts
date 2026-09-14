@@ -1,6 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import type {BlogPost} from '@docusaurus/plugin-content-blog';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -49,6 +50,16 @@ const config: Config = {
             'https://github.com/OpenSciML/phenoworks-web/tree/dev/',
         },
         blog: {
+          /**
+           * @param blogPosts - Posts in Docusaurus's default date order.
+           * @returns Posts with pinned entries first, preserving order within each group.
+           */
+          processBlogPosts: async ({blogPosts}: {blogPosts: BlogPost[]}): Promise<BlogPost[]> =>
+            [...blogPosts].sort(
+              (a: BlogPost, b: BlogPost): number =>
+                Number(b.metadata.frontMatter.pinned === true) -
+                Number(a.metadata.frontMatter.pinned === true),
+            ),
           showReadingTime: true,
           routeBasePath: 'blog',
           blogTitle: 'PhenoWorks Blog',

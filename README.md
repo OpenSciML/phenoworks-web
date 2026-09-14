@@ -25,6 +25,12 @@ Documentation pages live in `docs/`. Blog posts live in `blog/`. The sidebar
 order is defined in `sidebars.ts`, and site metadata lives in
 `docusaurus.config.ts`.
 
+Add `pinned: true` to a blog post's YAML front matter to place it at the top
+of the blog list. Pinned posts appear first, with the existing date order
+preserved within the pinned and unpinned groups. A “📌 Pinned” badge appears
+beside pinned titles in blog lists. Remove the field or set it
+to `false` to restore the post's normal position.
+
 ## Logo
 
 The canonical logo is `assets/logo.svg` in the PhenoWorks application repository.

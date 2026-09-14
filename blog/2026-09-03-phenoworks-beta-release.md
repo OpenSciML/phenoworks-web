@@ -2,10 +2,13 @@
 slug: phenoworks-beta-release
 title: PhenoWorks Beta Is Here
 authors: [phenoworks]
+pinned: true
 tags: [release-notes, development]
 ---
 
 PhenoWorks beta is here: a crop phenotyping web platform that brings research data, reusable analysis methods, and an AI assistant into one workspace. Load and visualize your data, extract structured features with LgoPy blocks, and use the results to support analysis, interpretation, and research writing.
+
+Our goal is to make research data analysis easier to repeat, inspect, and share—from the first exploratory run to a colleague revisiting the experiment months later.
 
 {/* truncate */}
 
@@ -55,6 +58,14 @@ The options at the bottom of the diagram show what this workflow can support:
 - **Grant Proposals:** use pilot-study findings to draft preliminary-data sections that support a proposed study.
 
 For example: “Can you draft a preliminary-data section for my grant proposal using these canopy-cover results?” Researchers review the interpretation and supporting evidence, then refine the draft for their audience.
+
+## How does PhenoWorks support better analysis and reproducible research?
+
+A canopy-cover table is more useful when you can explain which images produced it, how the measurements were calculated, and which settings were used. PhenoWorks brings those questions into the analysis workflow: organize the source data by project, study, dataset, and plot; choose reusable LgoPy blocks; inspect the pipeline definition and parameters; then review the run's logs and saved outputs.
+
+For example, a team can apply the same canopy-cover workflow to a later field campaign, inspect the resulting masks, and compare the measurements. If a threshold needs adjusting, they can run a revised analysis and examine how the outputs change. Reusing an explicit workflow reduces repeated setup and makes methodological differences easier to identify.
+
+This supports reproducibility, but the scientific method still needs validation. Researchers should preserve the input data, block code and versions, dependencies, and relevant settings, including random seeds where applicable. A saved pipeline helps document the analysis; reproducing a result also depends on the data and execution environment. See [Running Analysis Workflows](/docs/tutorials/run-workflow) for the review and execution steps.
 
 ## Continuous Learning
 
