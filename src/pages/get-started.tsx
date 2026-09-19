@@ -108,7 +108,7 @@ export default function GetStarted(): ReactNode {
               <Link
                 className={`button button--primary button--lg ${styles.signupButton}`}
                 href={SIGNUP_FORM_URL}>
-                Request access
+                Request free access
               </Link>
               {/* A form gating access reads as "sales call" unless the price
                   question is answered right here, at the moment it forms. */}

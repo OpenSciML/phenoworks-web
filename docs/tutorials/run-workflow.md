@@ -7,23 +7,21 @@ vegetation-index statistics from plot orthomosaics.
 ## Before you start
 
 You need a project with an accessible dataset containing multispectral assets, a
-running worker, and the module you intend to run. If the module is not installed
-yet, have its built package zip ready.
+running worker, and the module installed in your account. An administrator must
+publish its package to the global catalog before you can select it.
 
 Check the one-based NIR and red band indices against your sensor's band order
 before running. RGB imagery alone does not supply a near-infrared band.
 
 ## 1. Check that the module is installed
 
-Open **Modules** and look for the module you need. The list shows every analysis
-module available to PhenoWorks, with its version, category, and author.
+Open **LgoPy Modules**, find **NDVI Index** in **All modules**, and select
+**Install**. This adds it to your account without copying the shared package.
+Use **Installed** to review your selections and **Updates available** to choose
+new default versions. Only your installed modules appear in the pipeline picker.
 
-![The Analysis modules page with no modules installed and the Install module button highlighted](../images/tutorials/run-workflow/tut3_1.png)
-
-If it is missing, select **Install module**, choose the module's zip, and select
-**Install**. The page confirms the installed name and version.
-
-![The Analysis modules page showing NDVI Index installed at version 0.1.0, with its category, author, and tags](../images/tutorials/run-workflow/tut3_2.png)
+See [Manage LgoPy Modules](./manage-modules.md) for version preferences, citations,
+and the distinction between account removal and global package administration.
 
 ## 2. Start a new analysis
 

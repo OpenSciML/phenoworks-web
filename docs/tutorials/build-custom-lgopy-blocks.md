@@ -51,7 +51,7 @@ On Windows PowerShell, activate the environment with `.venv\Scripts\Activate.ps1
 
 | Package | Purpose |
 | --- | --- |
-| `lgopy` | Provides `Block`, local artifact and metadata stores, and block packaging. |
+| `lgopy` | Provides `Block`, `BlockContext`, local artifact and metadata stores, and block packaging. |
 | `Pillow` | Opens RGB images, converts color channels, and encodes the output JPEG. Its Python import name is `PIL`. |
 | `matplotlib` | Displays the original image and HSV visualization in the local demo. |
 
@@ -73,17 +73,17 @@ your block, record the working environment with
 `pip freeze > requirements.lock.txt` so a colleague can install the same versions
 using `pip install -r requirements.lock.txt`.
 
-The examples below use the store-attributes API: `save(..., attributes=...)`,
+The examples below require `BlockContext` and the store-attributes API: `save(..., attributes=...)`,
 `set(..., attributes=...)`, and `get_attributes(...)`. Check that your installed
-LgoPy version provides it before running the examples:
+LgoPy version provides both before running the examples:
 
 ```bash
-python -c "import inspect; from lgopy.core.stores import InMemoryArtifactStore; assert 'attributes' in inspect.signature(InMemoryArtifactStore.save).parameters, 'Install a LgoPy release with store-attributes support'"
+python -c "import inspect; from lgopy.core import BlockContext; from lgopy.core.stores import InMemoryArtifactStore; assert 'attributes' in inspect.signature(InMemoryArtifactStore.save).parameters, 'Install a LgoPy release with store-attributes support'"
 ```
 
 If this check fails, the installed release predates the required API. Upgrade
-with `pip install --upgrade lgopy` and use a release containing store-attributes
-support; the PhenoWorks runtime must support the same contract.
+with `pip install --upgrade lgopy` and use a release containing both APIs; the
+PhenoWorks runtime must also support context-aware blocks.
 
 ## Example: turn RGB images into HSV visualizations
 
@@ -112,7 +112,7 @@ including its packaging and visual-demo entry point:
 from io import BytesIO
 from typing import Annotated
 
-from lgopy.core import Block
+from lgopy.core import Block, BlockContext
 from PIL import Image as PILImage
 import logging
 
@@ -147,15 +147,17 @@ class Image2HSV(Block):
         super().__init__()
         self._jpeg_quality: int = jpeg_quality
 
-    def call(self, dataset_item: dict) -> dict:
+    def call(self, context: BlockContext) -> dict:
         """Convert RGB plot images into HSV-channel visualization artifacts.
 
         Args:
-            dataset_item: Plot dataset item dictionary with plot metadata and assets grouped by modality.
+            context: Original input containing one plot sample and named
+                outputs from completed steps.
 
         Returns:
             Dictionary with conversion status and processed asset counts.
         """
+        dataset_item = context.input
         try:
             plot_id = dataset_item.get("plot_id")
             rgb_assets = dataset_item["assets"].get("rgb", [])
@@ -210,13 +212,13 @@ if __name__ == "__main__":
 
     image_path = Path(__file__).resolve().parent / "test_images" / "img.png"
     result = block.call(
-        {
+        BlockContext(input={
             "plot_id": 101,
             "plot": {"name": "Plot 101"},
             "assets": {
                 "rgb": [{"id": 1, "file_uri": str(image_path)}],
             },
-        }
+        })
     )
     metadata.set("test.result", result)
     print("Artifacts:", list(artifacts.all()))
@@ -256,8 +258,20 @@ correctly.
 
 ## Understand the input
 
-PhenoWorks passes plot-level blocks a dataset item with a plot identifier and
-assets grouped by modality. This block expects RGB assets under `assets["rgb"]`:
+Declare the entry point as `call(self, context: BlockContext) -> dict` and import
+`BlockContext` from `lgopy.core`. PhenoWorks uses this type annotation to identify
+context-aware blocks, so keep it when adapting the example.
+
+`BlockContext` carries two fields:
+
+- `context.input`: the original input for the block's execution scope. For this
+  `dataset_item` block, it is a plot dataset item with assets grouped by modality.
+- `context.outputs`: results from completed pipeline steps, keyed by their
+  pipeline step names. It defaults to an empty dictionary in a local context.
+  Treat the values as read-only; they can contain shared, large data objects.
+
+`Image2HSV` reads `dataset_item = context.input` and expects RGB assets under
+`dataset_item["assets"]["rgb"]`. Its `context.input` looks like this:
 
 ```python
 {
@@ -293,10 +307,18 @@ After processing, the block returns `status`, `plot_id`, and `num_rgb_assets`.
 An empty RGB list produces a successful result with a count of zero. If processing
 fails, the block logs the error and raises it to the caller.
 
-This return value matters when you build a pipeline. The JPEG is saved through
-the artifact store, while `call(...)` returns a status dictionary. A later step
-must accept that dictionary or retrieve the saved image; a step expecting a plot
-dataset item cannot use the summary directly.
+The JPEG is saved through the artifact store, while `call(...)` returns a status
+dictionary. PhenoWorks makes completed step results available to later
+context-aware blocks through `context.outputs`, using the pipeline step name
+(which may differ from the block's catalog name). Item-level results are
+aggregated by the runtime, so do not assume a named output is one item's status
+dictionary. A later block can still read the original scoped input through
+`context.input` and retrieve generated images from the artifact store as needed.
+
+For a direct local call, construct `BlockContext(input=dataset_item)` yourself.
+To test a block that consumes earlier results, also pass
+`outputs={"previous_step": previous_result}`. Calling `block.call(...)` directly
+does not populate pipeline outputs automatically.
 
 ## Understand artifact ownership
 
@@ -342,6 +364,7 @@ the generated JPEG. Save it as `test_image_2_hsv.py` alongside the block and run
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from lgopy.core import BlockContext
 from lgopy.core.stores import InMemoryArtifactStore, InMemoryMetadataStore
 from PIL import Image as PILImage
 
@@ -359,13 +382,13 @@ with TemporaryDirectory() as directory:
     image_path = Path(directory) / "rgb.jpg"
     PILImage.new("RGB", (32, 32), color=(80, 150, 40)).save(image_path)
 
-    result = block.call({
+    result = block.call(BlockContext(input={
         "plot_id": 101,
         "plot": {"name": "Plot 101"},
         "assets": {
             "rgb": [{"id": 1, "file_uri": str(image_path)}],
         },
-    })
+    }))
 
 metadata.set("test.result", result, attributes={"purpose": "local smoke test"})
 print(result)
@@ -486,3 +509,25 @@ Do not declare batch independence for methods that fit across the dataset or
 need another batch's state. Use item-specific output keys, as this example does.
 Results remain separate per batch, and retries currently restart from the first
 batch. See [batched pipeline execution](./batched-item-pipelines.md) for the full contract.
+
+
+## Package existing documentation and citations
+
+Pass optional author-maintained files to the build method:
+
+```python
+Image2HSV.build(
+    output_dir="image-2-hsv-block",
+    format="zip",
+    readme_file="README.md",
+    citation_file="CITATION.cff",
+)
+```
+
+Both files are included in directory and ZIP packages when supplied. Omitting
+`readme_file` preserves the existing generated README behavior; omitting
+`citation_file` requires no citation. Supplied paths must be readable UTF-8 files.
+The builder checks citation YAML and required CFF metadata (not the full optional
+CFF schema). See the [CFF schema guide](https://github.com/citation-file-format/citation-file-format/blob/main/schema-guide.md)
+for the complete format. PhenoWorks preserves both files during publication and
+exposes them independently of implementation-code visibility.

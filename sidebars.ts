@@ -21,6 +21,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'tutorials/first-project',
         'tutorials/import-data',
+        'tutorials/manage-modules',
         'tutorials/run-workflow',
         'tutorials/view-export-results',
         'tutorials/analyze-with-agent',
