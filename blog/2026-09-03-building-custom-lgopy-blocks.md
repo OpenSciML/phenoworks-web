@@ -22,7 +22,7 @@ across datasets in PhenoWorks.
 
 ## What is LgoPy?
 
-[LgoPy](https://github.com/OpenSciML/lgopy) is an open-source Python library for
+[LgoPy](https://pypi.org/project/lgopy/) is a Python library for
 building multimodal data science pipelines. It lets researchers package Python
 methods as blocks that can be installed, inspected, and combined in PhenoWorks.
 
@@ -89,28 +89,20 @@ If this check fails, the installed release predates the required API. Upgrade
 with `pip install --upgrade lgopy` and use a release containing both APIs; the
 PhenoWorks runtime must also support context-aware blocks.
 
-## Example: turn RGB images into HSV visualizations
+## Example: turn RGB images into HSV color mode
 
 Our example, which you will save as `image_2_hsv.py`, reads the RGB images for a
-plot and converts them to HSV: hue, saturation, and value. It then saves a
-visualization of those channels as a PhenoWorks artifact, a derived file
-associated with the processing run.
+plot and converts them to HSV: hue, saturation, and value. It then saves the
+results as a PhenoWorks artifact, a derived file associated with the processing
+run.
 
-Hue represents color, saturation its intensity, and value its brightness.
-Viewing these channels separately can help you decide how to approach
-segmentation or feature extraction.
+The output is a JPEG visualization with H, S, and V mapped to the RGB channels,
+rather than a lossless HSV data file.
 
-To make the channels viewable, the block maps H, S, and V to the red, green,
-and blue channels of a JPEG. The resulting colors show the HSV channel values,
-so they differ from the original photograph. These images are intended for
-visual inspection. For numerical measurements that require exact values, work
-from the original data or a lossless representation rather than the JPEG.
+## Create the block
 
-## Read the complete block
-
-Save the following implementation as `image_2_hsv.py` in your own project.
-It matches `blocks/image_analysis/image_2_hsv.py` in the PhenoWorks repository,
-including its packaging and visual-demo entry point:
+Create a file named `image_2_hsv.py` in your project folder and copy the following
+code into it:
 
 ```python showLineNumbers
 from io import BytesIO
@@ -203,6 +195,10 @@ if __name__ == "__main__":
     # build artifact
     Image2HSV.build(output_dir="image-2-hsv-block", format="zip")
 
+    # Test the block and display the results.
+    # Matplotlib is only needed for this test, so we import it here.
+    # The block itself does not use it, so the builder leaves it out
+    # of requirements.txt.
     from pathlib import Path
     import matplotlib.pyplot as plt
     from lgopy.core.stores import InMemoryArtifactStore, InMemoryMetadataStore
@@ -262,36 +258,67 @@ correctly.
 
 ## Understand the input
 
-Declare the entry point as `call(self, context: BlockContext) -> dict` and import
-`BlockContext` from `lgopy.core`. PhenoWorks uses this type annotation to identify
-context-aware blocks, so keep it when adapting the example.
+PhenoWorks passes data to `call(self, context: BlockContext)` through
+`context.input`. To test a block locally, wrap your sample data in the same way.
+The input depends on the block's declared scope:
 
-`BlockContext` carries two fields:
+| Scope | Data passed to the block |
+| --- | --- |
+| `dataset_item` | One plot and its assets, as used by `Image2HSV`. |
+| `dataset` | Dataset information and a list of plot items. |
 
-- `context.input`: the original input for the block's execution scope. For this
-  `dataset_item` block, it is a plot dataset item with assets grouped by modality.
-- `context.outputs`: results from completed pipeline steps, keyed by their
-  pipeline step names. It defaults to an empty dictionary in a local context.
-  Treat the values as read-only; they can contain shared, large data objects.
+### Dataset-item input
 
-`Image2HSV` reads `dataset_item = context.input` and expects RGB assets under
-`dataset_item["assets"]["rgb"]`. Its `context.input` looks like this:
+This example shows the item structure, with only the plot and asset metadata
+needed for this test. PhenoWorks includes additional metadata in those records.
+Replace `file_uri` with the path to an RGB image on your computer.
 
 ```python
-{
+from lgopy.core import BlockContext
+
+dataset_item = {
+    "dataset_id": 1,
     "plot_id": 101,
+    "plot": {"id": 101, "name": "Plot 101"},
+    "modalities": ["rgb"],
     "assets": {
         "rgb": [
-            {"id": 1, "file_uri": "/path/to/plot_101_rgb.jpg"}
-        ]
+            {"id": 1, "file_uri": "/absolute/path/to/image.jpg"}
+        ],
     },
 }
+
+item_context = BlockContext(input=dataset_item)
 ```
 
-Each image needs an `id` and a readable `file_uri`. Because this block opens the
-file directly with Pillow, use a local image path for the example below. Remote
-assets and logical storage keys must first be resolved to files the block can
-read.
+For `Image2HSV`, call `block.call(item_context)` after setting up the block and
+its stores, as shown in **Check the block locally** below.
+
+### Dataset input
+
+For a block declared with `extras = {"transform_scope": "dataset"}`, use this
+outer structure. The `dataset_items` list contains items like the one above;
+the dataset metadata is shortened here for readability.
+
+```python
+dataset = {
+    "dataset_id": 1,
+    "dataset": {"id": 1, "name": "Example trial"},
+    "modalities": ["rgb"],
+    "dataset_items": [dataset_item],
+}
+
+dataset_context = BlockContext(input=dataset)
+```
+
+Pass `dataset_context` to a dataset-level block's `call(...)` method.
+`Image2HSV` expects `item_context` because it processes one plot at a time.
+When testing locally, you choose which input to pass; PhenoWorks does this for
+you when running a dataset pipeline.
+
+`context.outputs` holds results from earlier pipeline steps. It is empty by
+default in a local test. If your block needs an earlier result, supply it with
+`BlockContext(input=dataset_item, outputs={"previous_step": previous_result})`.
 
 ## Follow the processing step
 
@@ -360,8 +387,8 @@ You can test the block without a database or a running PhenoWorks server.
 LgoPy provides in-memory artifact and metadata stores that preserve the content
 and JSON-compatible attributes supplied by the block. No custom test adapter is needed.
 
-The following example creates a temporary RGB image, runs the block, and checks
-the generated JPEG. Save it as `test_image_2_hsv.py` alongside the block and run
+The following example uses a minimal item fixture, creates a temporary RGB
+image, runs the block, and checks the generated JPEG. Save it as `test_image_2_hsv.py` alongside the block and run
 `python test_image_2_hsv.py`:
 
 ```python
@@ -454,10 +481,11 @@ python -c 'from image_2_hsv import Image2HSV; Image2HSV.build(output_dir="image-
 
 Before uploading, inspect the generated package's `requirements.txt` and the
 `requirements` list in `manifest.json`. Both must include compatible LgoPy and
-Pillow versions. Matplotlib is used only by the local demo; inspect whether the
-builder includes it when scanning the full source. Automatic dependency detection can miss packages whose import
-name differs from their distribution name: the current builder omitted Pillow
-when checking this example's `PIL` import.
+Pillow versions. Matplotlib is imported inside `__main__` for testing and
+inspecting the results. Because the block class does not use it, the builder
+excludes it from the block's requirements. Automatic dependency detection can
+miss packages whose import name differs from their distribution name: the
+current builder omitted Pillow when checking this example's `PIL` import.
 
 Use `pip show lgopy Pillow` to check the versions you tested. If Pillow is missing,
 add its matching `Pillow==...` requirement to both files, then recreate the ZIP
@@ -466,21 +494,9 @@ manifest fields. Installing Pillow locally does not automatically make it a
 declared dependency of the uploaded block. Neither Python's standard library
 nor the PhenoWorks backend belongs in this block's requirements.
 
-Upload the generated ZIP through **Analysis Modules** in a running PhenoWorks
-instance. If you administer the server, you can alternatively install the package
-directory with its CLI:
-
-```bash
-phenoworks analysis-blocks install image-2-hsv-block
-phenoworks analysis-blocks source image_2_hsv --version 0.1.0
-phenoworks analysis-blocks requirements image_2_hsv --version 0.1.0
-```
-
-Once installed, inspect the package and its requirements in PhenoWorks. To
-produce the visualizations, select a compatible dataset, set `jpeg_quality`,
-and run the block in a dataset pipeline. The build-only command packages the
-method; running `python image_2_hsv.py` also processes the local sample.
-Processing a PhenoWorks dataset starts when you run the installed block in a pipeline.
+Install the generated ZIP directly in the PhenoWorks UI through
+**Analysis Modules**. Then select a compatible dataset, set `jpeg_quality`,
+and run the block in a dataset pipeline.
 
 ## Reuse the pattern for feature extraction
 
