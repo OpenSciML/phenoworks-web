@@ -234,7 +234,7 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
-      additionalLanguages: ['powershell', 'ini'],
+      additionalLanguages: ['powershell', 'ini', 'r'],
     },
     mermaid: {
       theme: {light: 'neutral', dark: 'forest'},
