@@ -73,10 +73,12 @@
       {
         "name": "Eric Torres",
         "role": "Contributor",
-        "bio": "Contributing to the development of PhenoWorks.",
-        "position": "",
+        "bio": "Eric Torres is a graduate student at Texas A&M University. His research focuses on turfgrass breeding and quantitative genetics, and on how ground and aerial based phenotyping platforms can support selection decisions. He also works in stochastic simulation of breeding programs, comparing selection strategies by weighing their cost against expected genetic gain.",
+        "position": "Graduate Research Assistant",
+        "affiliation": "Texas A&M University @ Soil and Crop Sciences (SCSC)",
+        "image": "/img/authors/eric.jpg",
         "websiteUrl": "",
-        "linkedinUrl": "",
+        "linkedinUrl": "https://www.linkedin.com/in/eric-torres-a59a50225",
         "githubUrl": "",
         "googleScholarUrl": "",
         "universityProfileUrl": ""
