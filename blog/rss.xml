@@ -139,6 +139,12 @@ reconnect later with <code>client.pipeline_run(pipeline_id=123, operation_id=456
 Python or <code>client$pipeline_run(pipeline_id = 123, operation_id = 456)</code> in R.
 Reconnecting retrieves an existing run without submitting another one. A wait
 timeout stops polling; it does not cancel the server's job.</p>
+<p>:::note Update</p>
+<p>Pipeline runs now share one ID with their operation. Newer SDK releases replace
+<code>run.pipeline_id</code> and <code>run.operation_id</code> with <code>run.id</code> (<code>run$id</code> in R), reconnect
+with <code>client.pipeline_run(123)</code> or <code>client$pipeline_run(run_id = 123)</code>, and move
+the CLI commands to <code>phenoworks pipeline-runs run|status|wait</code>.</p>
+<p>:::</p>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="prefer-the-terminal">Prefer the terminal?<a href="https://phenoworks.org/blog/python-and-r-sdks#prefer-the-terminal" class="hash-link" aria-label="Direct link to Prefer the terminal?" title="Direct link to Prefer the terminal?" translate="no">​</a></h2>
 <p>With the Python CLI extra installed and your connection variables configured,
 you can inspect your account or launch a pipeline from the shell:</p>
