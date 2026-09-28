@@ -168,6 +168,16 @@ const config: Config = {
         {to: '/team', label: 'Team', position: 'left'},
         {to: '/contact', label: 'Contact', position: 'left'},
         {
+          href: 'https://discord.gg/6qMb62XSH',
+          label: 'Discord',
+          position: 'right',
+        },
+        {
+          href: 'https://www.youtube.com/@PhenoWorks',
+          label: 'YouTube',
+          position: 'right',
+        },
+        {
           href: 'https://github.com/OpenSciML/phenoworks-web',
           label: 'GitHub',
           position: 'right',
@@ -204,6 +214,19 @@ const config: Config = {
             {
               label: 'View & Export Results',
               to: '/docs/tutorials/view-export-results',
+            },
+          ],
+        },
+        {
+          title: 'Community',
+          items: [
+            {
+              label: 'Discord',
+              href: 'https://discord.gg/6qMb62XSH',
+            },
+            {
+              label: 'YouTube',
+              href: 'https://www.youtube.com/@PhenoWorks',
             },
           ],
         },

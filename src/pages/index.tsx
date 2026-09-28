@@ -42,6 +42,14 @@ export default function Home(): ReactNode {
                   →
                 </span>
               </Link>
+              <Link
+                className={`button button--secondary button--lg ${styles.demoCta}`}
+                href="https://www.youtube.com/watch?v=AIRj9YjvcjA"
+                target="_blank"
+                rel="noopener noreferrer">
+                <span aria-hidden="true">▶</span>
+                Watch Demo on YouTube
+              </Link>
             </div>
           </div>
         </section>

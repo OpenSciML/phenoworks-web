@@ -64,8 +64,24 @@
   border-color: rgba(255, 255, 255, 0.9);
 }
 
-/* Primary hero call to action: solid brand green, sized up so it reads as the
-   single next step against the hero image in both light and dark mode. */
+.actions .demoCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 1.2rem 1.5rem;
+  border-radius: 999px;
+}
+
+.actions .demoCta:hover,
+.actions .demoCta:focus-visible {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #173f32;
+}
+
+/* Primary hero call to action: solid brand green against the hero image
+   in both light and dark mode. */
 .actions .primaryCta {
   display: inline-flex;
   align-items: center;
@@ -164,4 +180,3 @@
   }
 
 }
-

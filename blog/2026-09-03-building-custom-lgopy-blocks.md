@@ -351,36 +351,6 @@ To test a block that consumes earlier results, also pass
 `outputs={"previous_step": previous_result}`. Calling `block.call(...)` directly
 does not populate pipeline outputs automatically.
 
-## Understand artifact ownership
-
-The example supplies an artifact classification and an explicit plot association:
-
-```python
-attributes={
-    "artifact_type": "plot_hsv_image",
-    "associations": {"plot_id": plot_id},
-}
-```
-
-PhenoWorks supplies pipeline, project, study, and dataset IDs through its runtime
-store. Block authors do not need to pass those IDs when saving an artifact.
-For example, `self.artifacts.save("output.jpg", image_bytes)` still creates an
-artifact associated with the current pipeline and dataset. Its default
-`artifact_type` is `lgopy_block_artifact`, and its format is inferred from the
-filename extension (`jpg` here; `bin` when there is no extension).
-
-Plot ownership is currently explicit: omitting `associations.plot_id` leaves the
-database `plot_id` empty. It is not inferred from the filename or current input.
-Only `plot_id` is accepted in `associations`; the runtime owns the other hierarchy
-IDs. Add descriptive fields separately, for example
-`"metadata": {"jpeg_quality": self._jpeg_quality}` inside `attributes`.
-
-Locally, LgoPy's in-memory store retains the bytes and attributes for inspection.
-Inside PhenoWorks, its store writes the file immediately and prepares a
-`PipelineArtifactCreateRecord`. Database persistence then records the hierarchy
-IDs, artifact type, file URI, and metadata. The local test never connects to that
-database.
-
 ## Check the block locally
 
 You can test the block without a database or a running PhenoWorks server.
@@ -494,9 +464,30 @@ manifest fields. Installing Pillow locally does not automatically make it a
 declared dependency of the uploaded block. Neither Python's standard library
 nor the PhenoWorks backend belongs in this block's requirements.
 
-Install the generated ZIP directly in the PhenoWorks UI through
-**Analysis Modules**. Then select a compatible dataset, set `jpeg_quality`,
-and run the block in a dataset pipeline.
+Publishing a new analytical block in PhenoWorks requires an administrator
+account. Administrators can install the generated ZIP through **Analysis Modules**.
+
+If you are not an administrator, share your block's ZIP file with us on
+[Discord](https://discord.gg/6qMb62XSH). The PhenoWorks team will evaluate the
+module, provide feedback, and work with you to refine it. Once we have completed
+that review, incorporated any needed changes, and thoroughly tested the module,
+we will install it and make it available to all users.
+
+You retain ownership of your methods and credit for your work. PhenoWorks
+respects contributors' intellectual property; sharing a block does not transfer
+ownership of your methods to PhenoWorks. You can also include a `CITATION.cff`
+file with your package using the build method's `citation_file` argument to
+specify how others should cite your contribution.
+
+PhenoWorks also supports private publication for modules whose source code and
+implementation details must remain undisclosed. Users and agents can still run
+these modules, but their private code and implementation details are not
+available for inspection. An agent therefore cannot explain the private code or
+its implementation details; any explanation must rely on the documentation and
+other information made available by the contributor.
+
+Once the block is available, select a compatible dataset, set `jpeg_quality`,
+and run it in a dataset pipeline.
 
 ## Reuse the pattern for feature extraction
 
