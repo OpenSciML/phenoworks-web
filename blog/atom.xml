@@ -572,25 +572,6 @@ dictionary. A later block can still read the original scoped input through
 To test a block that consumes earlier results, also pass
 <code>outputs={"previous_step": previous_result}</code>. Calling <code>block.call(...)</code> directly
 does not populate pipeline outputs automatically.</p>
-<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="understand-artifact-ownership">Understand artifact ownership<a href="https://phenoworks.org/blog/building-custom-lgopy-blocks#understand-artifact-ownership" class="hash-link" aria-label="Direct link to Understand artifact ownership" title="Direct link to Understand artifact ownership" translate="no">​</a></h2>
-<p>The example supplies an artifact classification and an explicit plot association:</p>
-<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#F8F8F2"><span class="token plain">attributes</span><span class="token operator">=</span><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token string" style="color:rgb(255, 121, 198)">"artifact_type"</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">"plot_hsv_image"</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token string" style="color:rgb(255, 121, 198)">"associations"</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token string" style="color:rgb(255, 121, 198)">"plot_id"</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> plot_id</span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><br></div></code></pre></div></div>
-<p>PhenoWorks supplies pipeline, project, study, and dataset IDs through its runtime
-store. Block authors do not need to pass those IDs when saving an artifact.
-For example, <code>self.artifacts.save("output.jpg", image_bytes)</code> still creates an
-artifact associated with the current pipeline and dataset. Its default
-<code>artifact_type</code> is <code>lgopy_block_artifact</code>, and its format is inferred from the
-filename extension (<code>jpg</code> here; <code>bin</code> when there is no extension).</p>
-<p>Plot ownership is currently explicit: omitting <code>associations.plot_id</code> leaves the
-database <code>plot_id</code> empty. It is not inferred from the filename or current input.
-Only <code>plot_id</code> is accepted in <code>associations</code>; the runtime owns the other hierarchy
-IDs. Add descriptive fields separately, for example
-<code>"metadata": {"jpeg_quality": self._jpeg_quality}</code> inside <code>attributes</code>.</p>
-<p>Locally, LgoPy's in-memory store retains the bytes and attributes for inspection.
-Inside PhenoWorks, its store writes the file immediately and prepares a
-<code>PipelineArtifactCreateRecord</code>. Database persistence then records the hierarchy
-IDs, artifact type, file URI, and metadata. The local test never connects to that
-database.</p>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="check-the-block-locally">Check the block locally<a href="https://phenoworks.org/blog/building-custom-lgopy-blocks#check-the-block-locally" class="hash-link" aria-label="Direct link to Check the block locally" title="Direct link to Check the block locally" translate="no">​</a></h2>
 <p>You can test the block without a database or a running PhenoWorks server.
 LgoPy provides in-memory artifact and metadata stores that preserve the content
@@ -638,9 +619,26 @@ from the corrected package directory. Preserve the package layout and other
 manifest fields. Installing Pillow locally does not automatically make it a
 declared dependency of the uploaded block. Neither Python's standard library
 nor the PhenoWorks backend belongs in this block's requirements.</p>
-<p>Install the generated ZIP directly in the PhenoWorks UI through
-<strong>Analysis Modules</strong>. Then select a compatible dataset, set <code>jpeg_quality</code>,
-and run the block in a dataset pipeline.</p>
+<p>Publishing a new analytical block in PhenoWorks requires an administrator
+account. Administrators can install the generated ZIP through <strong>Analysis Modules</strong>.</p>
+<p>If you are not an administrator, share your block's ZIP file with us on
+<a href="https://discord.gg/6qMb62XSH" target="_blank" rel="noopener noreferrer" class="">Discord</a>. The PhenoWorks team will evaluate the
+module, provide feedback, and work with you to refine it. Once we have completed
+that review, incorporated any needed changes, and thoroughly tested the module,
+we will install it and make it available to all users.</p>
+<p>You retain ownership of your methods and credit for your work. PhenoWorks
+respects contributors' intellectual property; sharing a block does not transfer
+ownership of your methods to PhenoWorks. You can also include a <code>CITATION.cff</code>
+file with your package using the build method's <code>citation_file</code> argument to
+specify how others should cite your contribution.</p>
+<p>PhenoWorks also supports private publication for modules whose source code and
+implementation details must remain undisclosed. Users and agents can still run
+these modules, but their private code and implementation details are not
+available for inspection. An agent therefore cannot explain the private code or
+its implementation details; any explanation must rely on the documentation and
+other information made available by the contributor.</p>
+<p>Once the block is available, select a compatible dataset, set <code>jpeg_quality</code>,
+and run it in a dataset pipeline.</p>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="reuse-the-pattern-for-feature-extraction">Reuse the pattern for feature extraction<a href="https://phenoworks.org/blog/building-custom-lgopy-blocks#reuse-the-pattern-for-feature-extraction" class="hash-link" aria-label="Direct link to Reuse the pattern for feature extraction" title="Direct link to Reuse the pattern for feature extraction" translate="no">​</a></h2>
 <p>The same structure can support a vegetation-index calculation, a canopy-cover
 measurement, or a summary of image-channel statistics. The processing method
