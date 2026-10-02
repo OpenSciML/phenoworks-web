@@ -33,6 +33,7 @@ const sidebars: SidebarsConfig = {
       collapsed: true,
       items: [
         'tutorials/build-custom-lgopy-blocks',
+        'tutorials/batched-item-pipelines',
       ],
     },
   ],

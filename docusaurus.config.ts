@@ -182,6 +182,11 @@ const config: Config = {
           label: 'GitHub',
           position: 'right',
         },
+        {
+          href: 'https://app.phenoworks.org/',
+          label: 'Login',
+          position: 'right',
+        },
       ],
     },
     footer: {

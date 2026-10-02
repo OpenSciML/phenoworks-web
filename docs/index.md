@@ -11,84 +11,92 @@ To work with these data and workflows conversationally, use the [PhenoWorks Agen
 ## Follow the workflow
 
 1. [Create a project and study](tutorials/first-project.md) to describe your research and organize its data.
-2. [Import and visualize data](tutorials/import-data.md), checking plot labels, sensor modalities, and supporting files.
-3. [Run an analysis workflow](tutorials/run-workflow.md) to process data and extract structured features.
-4. [Review and export results](tutorials/view-export-results.md) for comparison, reporting, or further analysis.
-5. [Work with the Agent](tutorials/analyze-with-agent.md) to explore findings and draft research sections.
+2. [Import and visualize data](tutorials/import-data.md) as single files, plot-organized ZIP archives, or field-wide maps split by plot boundaries.
+3. [Install analysis modules](tutorials/manage-modules.md) that read your sensors and data products.
+4. [Run an analysis workflow](tutorials/run-workflow.md) to process data and extract structured features.
+5. [Review and export results](tutorials/view-export-results.md) for comparison, reporting, or further analysis.
+6. [Work with the Agent](tutorials/analyze-with-agent.md) to explore findings and draft research sections.
+
+The **Set up an analysis** guide on **Home** combines steps 1 to 4: choose your
+platform and sensors, create the project, upload the data, and pick compatible
+analyses in one flow.
 
 To extend the available analysis methods, follow [Build Custom LgoPy Blocks](tutorials/build-custom-lgopy-blocks.md).
 
 ![PhenoWorks scientific workflow: research data collection, analysis, scientific knowledge base, and PhenoWorks Agent](/img/phenoworks-scientific-workflow.png)
 
-## Study Hierarchy
+## Data Model
 
-PhenoWorks organizes research from its broad purpose down to individual observations: **Project → Study → Dataset → Plot → Asset**. Supporting files attach to the project or study they describe. Analysis runs belong to datasets, and the outputs they generate are stored as artifacts.
+PhenoWorks organizes research from its broad purpose down to individual files:
+**Project → Study → Dataset → Dataset file**. Every file belongs to one dataset.
+Surveys and plots describe when and where a dataset's files were collected.
+Analyses run on datasets as pipeline runs, and the outputs they generate are
+stored as artifacts.
 
-The diagram shows these relationships, rather than a required sequence of upload steps. A project can contain several studies, a study several datasets, and a plot several assets.
+The diagram shows these relationships rather than a required sequence of upload
+steps. A project can contain several studies, a study several datasets, and a
+dataset many files.
 
 ```mermaid
 flowchart LR
   Project --> Study
-  Project --> ProjectFile[Project File]
   Study --> Dataset
-  Study --> StudyFile[Study File]
+  Dataset --> File[Dataset File]
+  Dataset --> Survey
   Dataset --> Plot
-  Plot --> Asset
+  Survey -. survey_id .-> File
+  Plot -. plot_id .-> File
   Dataset --> PipelineRun[Pipeline Run]
   PipelineRun --> Artifact
 ```
 
+The dotted lines are metadata labels on each file, not ownership: deleting a
+plot or survey keeps its labelled files.
+
 ### Project: the overall research effort
 
-A **Project** is the top-level workspace for a research effort, such as a breeding programme, a grant-funded investigation, or a series of related trials. It groups studies and shared files under one name and description. Project ownership and collaborator membership determine who can access the work.
+A **Project** is the top-level workspace for a research effort, such as a breeding programme, a grant-funded investigation, or a series of related trials. It groups studies under one name and description. Project ownership and collaborator membership determine who can access the work: members can view the data and results, and the owner can upload and change it.
 
 For example, a project named **Wheat Drought Response** could contain studies from several seasons or locations. Use the project description to explain the broader research question; use studies to describe the individual experiments.
 
 ### Study: the experimental context
 
-A **Study** belongs to a project and describes a particular experiment, season, site, or campaign. It can record a description, abstract, methods summary, start and end dates, and additional metadata. Its datasets contain the observations, while its study files hold supporting documents.
+A **Study** belongs to a project and describes a particular experiment, season, site, or campaign. It can record a description, abstract, methods summary, start and end dates, and additional metadata. Its datasets contain the data.
 
 Within **Wheat Drought Response**, a study named **2026 Irrigation Trial** might describe the treatment design, growing season, and measurement protocol. Several collection dates can belong to this same study; a new batch of data does not necessarily require a new study.
 
-### Dataset: a collection of data to analyze together
+### Dataset: data to analyze together
 
-A **Dataset** belongs to a study and groups the plots and assets you intend to process together. It records a name, description, location, coordinates, and supported sensor modalities. Datasets can also hold contextual information such as weather observations and visualization settings. Analysis pipelines run against a selected dataset.
+A **Dataset** belongs to a study and holds the files you intend to process together. It records a name, description, and optional location; when a location is given, PhenoWorks fetches the weather for the collection date in the background. Analysis pipelines run against a selected dataset.
 
-For example, **Field Visit — 15 June 2026** could contain RGB, thermal, and multispectral observations for the plots in the irrigation trial. A later visit could become another dataset within the same study. Choose dataset boundaries that make sense for your collection process and analysis methods.
+For example, **Irrigation Trial Field** could hold the drone orthomosaics, plot boundaries, and ground-robot captures for the trial's plots across the season. Choose dataset boundaries that make sense for your collection process and analysis methods.
 
-### Plot: the unit observed within a dataset
+### Dataset file: one stored file and its classification
 
-A **Plot** represents an experimental unit within a dataset. It has a name, an optional plot code, notes, and an optional geographic boundary. Its assets hold the observations associated with that unit.
+A **Dataset file** is any file in a dataset: an RGB image, a multispectral orthomosaic, a LiDAR point cloud, a CSV of measurements, a plot-boundary GeoPackage, or a protocol PDF. Files keep the folders they were imported with. Each file is classified on two axes:
 
-For example, **Plot A12** could contain several sensor files collected during the June visit. Plot records belong to individual datasets, so use consistent plot codes across collection dates to make later comparisons easier. Matching codes provide a useful convention; they do not make the records a single shared plot.
+- **Data product**: what the file is, such as `image`, `orthomosaic`, `point_cloud`, `csv`, or `document`. It decides the accepted extensions, the viewer, and which analysis modules apply.
+- **Modality**: which sensor captured it, such as `rgb`, `thermal`, `multispectral`, `hyperspectral`, `lidar`, or `gpr`, or `none` for files without a sensor.
 
-### Asset: an observation associated with a plot
+An optional **processing method** (`photogrammetry`, `registration`, `slam`, `direct`) records how a derived product was made. A point cloud is a `point_cloud` whether it comes from a LiDAR scan or from drone photos processed by photogrammetry. Files also carry metadata such as named bands, sensor, capture time, and any fields supplied at upload, like `treatment`. Administrators manage the modality and data-product catalogs under **Data types**.
 
-An **Asset** is a registered data file attached to a plot, such as an RGB image, thermal image, or multispectral raster. Its record describes the modality and data type and can include acquisition time, sensor name, position, band information, and other metadata.
+### Survey: one data collection
 
-For example, a multispectral raster for **Plot A12** is an asset within the June dataset. Its band information helps you select compatible analysis methods and configure their inputs. The modalities and formats a workflow can process depend on its analysis blocks.
+A **Survey** is a dated data collection within a dataset, such as the drone flight on 10 June. Files join a survey through the `survey_id` in their metadata; a plot boundaries import assigns one automatically from the capture date. Keeping several surveys in one dataset lets you compare the same plots over the season.
 
-### Project File: shared source material or reference data
+### Plot: the experimental unit
 
-A **Project File** belongs directly to the project. Use it for source material or references that support the broader research effort, such as an orthomosaic, a plot-boundary file, an archive of sensor data, or a document relevant to several studies. Its record includes a name, purpose, format, description, and processing status; spatial files can also carry coordinate-system and extent information.
-
-For example, upload a packaged collection under the project's **Files**, then use **Unzip to Dataset** to import it into a selected study. The archive is a project file; the imported observations become assets organized within the dataset. Uploading a project file alone does not make it a plot asset ready for every analysis workflow.
-
-### Study File: documents that explain an experiment
-
-A **Study File** belongs to one study and holds its written or supporting context. Examples include the experiment's protocol, treatment description, field notes, reference papers, or manuscript draft. Its record includes a name, purpose, format, description, and processing status.
-
-For the **2026 Irrigation Trial**, keep the season-specific protocol with the study. A reference used across several studies may fit better as a project file. These documents help explain the observations; they are distinct from the plot assets an analysis block expects as inputs.
+A **Plot** is an experimental unit, such as **Plot A12**. Files belong to a plot through the `plot_id` in their metadata, supplied in a ZIP sidecar or set by a plot boundaries import, which also creates the plot records from the polygons. When a pipeline runs, files sharing a `plot_id` are delivered together, so a module can read a plot's RGB, NIR, and thermal files at once. Files without a plot label are analyzed one at a time. Use consistent plot IDs across surveys to make later comparisons easier.
 
 ### Pipeline Run: a recorded analysis of a dataset
 
-A **Pipeline Run** records an analysis submitted for a selected dataset. It identifies the workflow and parameters, tracks execution status and timing, and connects the analysis to its generated artifacts. The workspace also provides execution logs for checking progress and diagnosing failures.
+A **Pipeline Run** records an analysis submitted for a selected dataset. It identifies the modules and parameters, tracks execution status and timing on **Jobs**, and connects the analysis to its generated artifacts. Its processing log helps you check progress and diagnose failures. A run has one ID across the web workspace, the SDKs, and the Agent.
 
-For example, run a compatible vegetation-index workflow on the June dataset, then review its definition, band parameters, logs, and outputs before applying the method to another collection date. A reusable workflow describes the method; a run records a particular execution of it.
+For example, run a vegetation-index module on the June survey, then review its definition, band parameters, logs, and outputs before applying the method to another survey. A reusable workflow describes the method; a run records a particular execution of it.
 
 ### Artifact: an output produced by an analysis
 
-An **Artifact** is a saved output generated by a pipeline run, such as a feature table, processed image, segmentation mask, figure, or statistical summary. It is linked to the run and dataset and may also refer to a particular plot. The outputs available depend on the blocks used in the workflow.
+An **Artifact** is a saved output generated by a pipeline run, such as a feature table, processed image, segmentation mask, figure, or statistical summary. It is linked to the run and dataset, may refer to a particular plot, and can carry metadata such as the survey it describes. The outputs available depend on the modules used in the workflow.
 
 For example, a table summarizing vegetation-index values by plot is an artifact of the June analysis. Keep it with the run for review, or download it for downstream analysis in a notebook or statistical package.
 
@@ -100,7 +108,8 @@ PhenoWorks combines a browser workspace, an API, background workers, and persist
 
 - **Web workspace and API.** The Next.js frontend provides the user interface. The FastAPI backend manages authentication, access checks, research metadata, files, and analysis operations. Resumable uploads support large data transfers.
 - **Background processing.** In the Celery deployment, RabbitMQ queues work for one or more workers. Workers process files and execute pipelines, with progress, logs, and outputs available in the workspace. Local development can also use the embedded operation queue.
-- **Persistent storage.** PostgreSQL with PostGIS stores research and spatial metadata. File storage holds uploaded data, analysis packages, logs, and generated artifacts.
+- **Persistent storage.** PostgreSQL with PostGIS stores research and spatial metadata. File storage holds uploaded data, analysis packages, logs, and generated artifacts. TiTiler serves orthomosaics to the map viewer.
+- **Optional services.** NodeODM turns drone flight images into orthomosaics, elevation models, and point clouds. Docling Serve converts documents into structured text for the planned knowledge index. Both run independently, on CPU or NVIDIA GPU.
 - **Deployment.** Docker Compose brings the services together for self-hosting. Additional workers can increase processing capacity, while pgAdmin provides a database administration interface.
 
 ### Docker Compose Service Architecture
@@ -111,21 +120,23 @@ PhenoWorks combines a browser workspace, an API, background workers, and persist
 
 | Module | Responsibility |
 | --- | --- |
-| API routers | Expose endpoints for authentication, research data, uploads, operations, pipelines, analysis modules, and user access. |
-| Services | Apply business rules and access checks, coordinate file ingestion, and manage analysis operations. |
-| Stores | Read and write metadata, source files, analysis packages, and generated artifacts through dedicated storage interfaces. |
+| API routers | Expose endpoints for authentication, research data, dataset files, surveys, uploads, operations, pipeline runs, analysis modules, data types, and user access. |
+| Services | Apply business rules and access checks, coordinate file ingestion and plot extraction, and manage analysis operations. |
+| Stores | Read and write metadata, dataset files, analysis packages, and generated artifacts through dedicated storage interfaces. |
+| Data types catalog | Define the modalities and data products files can use, with each product's accepted extensions. |
 | Workers | Execute queued operations and report progress, logs, failures, and completion. |
 | Analysis catalog | Manage installed LgoPy modules, search available methods, and expose their source code and requirements. |
 | Operation execution | Track durable processing requests and dispatch them through the configured local or Celery queue. |
 | Frontend | Provide the authenticated research workspace using Next.js and Material UI. |
 | PhenoWorks Agent | Help researchers process data, interpret results, and prepare drafts using connected tools and available evidence. |
 | PhenoWorks MCP | Expose authenticated workspace tools to compatible AI assistants. |
+| Python SDK and CLI, R client | Script uploads, pipeline runs, and downloads from notebooks and the terminal. |
 
 ## Extensibility Model
 
 [LgoPy](https://github.com/OpenSciML/lgopy) provides the reusable analysis blocks that extend PhenoWorks for different crops, sensors, and research methods. Each block performs a focused task with defined inputs and outputs, such as calculating a vegetation index, adjusting image contrast, or extracting canopy cover.
 
-Developers package methods as versioned LgoPy modules. Researchers install them in the analysis catalog, inspect their source and requirements, and connect compatible blocks into dataset-level pipelines. A block's output must match the next block's expected input; a saved artifact is not necessarily the value passed to the next step.
+Developers package methods as versioned LgoPy modules. Each module declares the sensor and data-product pairs it reads, such as `multispectral:orthomosaic`, so PhenoWorks and the Agent can offer only the modules that fit a dataset. Researchers install them from **Modules**, inspect their source and requirements, and connect compatible blocks into dataset-level pipelines. A block's output must match the next block's expected input; a saved artifact is not necessarily the value passed to the next step.
 
 This approach lets teams add or refine analytical methods without rebuilding the core platform. Start with methods that support your data, check their parameters and dependencies, and reuse the workflow across compatible datasets. Generated artifacts remain associated with the analysis and its research context.
 
@@ -133,7 +144,7 @@ This approach lets teams add or refine analytical methods without rebuilding the
 
 ## User Interaction Model
 
-Most researchers work in the browser: sign in, select a project and study, then open the editor to organize datasets, plots, and files. From the analysis catalog and pipeline views, inspect available methods, configure an analysis, follow its progress, and preview or download the results.
+Most researchers work in the browser: sign in, follow the guided setup on **Home** or open the **Editor** to create datasets, upload files, and explore them on the map. From **Modules** and **Jobs**, inspect available methods, configure an analysis, follow its progress, and preview or download the results. The Python and R clients offer the same tasks from code.
 
 The Agent offers a conversational route to supported tasks in the same workspace. Its actions depend on the connected tools and your access permissions. Review generated interpretations and research drafts against the underlying data and methods before using them in a publication or proposal.
 

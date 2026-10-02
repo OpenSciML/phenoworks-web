@@ -30,8 +30,8 @@ installation instructions below use that source archive.
 
 ## Two languages, the same research workflow
 
-Both clients let you work with projects, studies, datasets, assets, plots,
-annotations, and pipeline results. They handle API authentication and provide
+Both clients let you work with projects, studies, datasets, dataset files,
+surveys, plots, annotations, and pipeline runs. They handle API authentication and provide
 methods for file transfers and pipeline monitoring. Python returns familiar
 dictionaries and lists; R returns ordinary lists that you can inspect and
 transform with your preferred tools.
@@ -155,23 +155,28 @@ print(datasets)
 </TabItem>
 </Tabs>
 
-This selects datasets that declare the requested modality. Check their assets
+This selects datasets that declare the requested modality. Check their files
 before starting an analysis; declaring a modality does not mean its files have
 already been uploaded.
 
-## Bring files into a project
+## Bring files into a dataset
 
-A script can upload a locally produced file directly to a project. For example,
-upload a CSV of measurements after preparing it in your analysis environment:
+A script can upload a locally produced file directly to a dataset. For example,
+upload a CSV of measurements after preparing it in your analysis environment.
+Every file declares its data product and the sensor modality that captured it;
+use `none` for files without a sensor:
 
 <Tabs groupId="sdk-language">
 <TabItem value="python" label="Python" default>
 
 ```python
 with PhenoWorksClient() as client:
-    uploaded = client.upload_project_file(
-        project_id=7,
+    uploaded = client.upload_dataset_file(
+        dataset_id=42,
         path="measurements.csv",
+        data_product="csv",
+        modality="none",
+        metadata={"plot_id": "P001"},
         description="Field measurements prepared in Python",
     )
     print(uploaded)
@@ -181,9 +186,12 @@ with PhenoWorksClient() as client:
 <TabItem value="r" label="R">
 
 ```r
-uploaded <- client$upload_project_file(
-  project_id = 7,
+uploaded <- client$upload_dataset_file(
+  dataset_id = 42,
   path = "measurements.csv",
+  data_product = "csv",
+  modality = "none",
+  metadata = list(plot_id = "P001"),
   description = "Field measurements prepared in R"
 )
 print(uploaded)
@@ -192,10 +200,13 @@ print(uploaded)
 </TabItem>
 </Tabs>
 
-These methods register, transfer, and finalize a project file using the upload
-backend selected by the server. The file must exist locally, and your account
-must have permission to upload to the selected project. Uploading a project
-file is a separate step from associating data with a dataset for analysis.
+These methods register, transfer, and finalize a dataset file using the upload
+backend selected by the server. The file must exist locally, and you must own
+the dataset's project. A `plot_id` in the metadata groups the file with the
+plot's other files when a pipeline runs. To import many plot files at once, use
+`client.files.import_zip(42, "collection.zip")` (`client$files$import_zip` in R)
+with a ZIP of per-plot JSON sidecars; see
+[Importing Data](/docs/tutorials/import-data) for every upload method.
 
 ## Run a pipeline and retrieve its outputs
 
@@ -220,7 +231,7 @@ from phenoworks_sdk import PhenoWorksClient
 with PhenoWorksClient() as client:
     definition = json.loads(Path("pipeline.json").read_text(encoding="utf-8"))
     run = client.run_pipeline(dataset_id=42, json_pipeline=definition)
-    print("Pipeline:", run.pipeline_id, "Operation:", run.operation_id)
+    print("Pipeline run:", run.id)
 
     run.wait(timeout=3600)
 
@@ -237,8 +248,7 @@ with PhenoWorksClient() as client:
 ```r
 definition <- paste(readLines("pipeline.json", warn = FALSE), collapse = "\n")
 run <- client$run_pipeline(dataset_id = 42, json_pipeline = definition)
-print(run$pipeline_id)
-print(run$operation_id)
+print(run$id)
 
 run$wait(timeout = 3600)
 
@@ -259,18 +269,20 @@ metadata to choose the appropriate reader for your next step: a CSV reader for
 a table, a raster library for an image, or a point-cloud tool for LiDAR data.
 Downloads stream to disk and protect existing files from accidental overwrites.
 
-Save the pipeline and operation IDs alongside your analysis notes. You can
-reconnect later with `client.pipeline_run(pipeline_id=123, operation_id=456)` in
-Python or `client$pipeline_run(pipeline_id = 123, operation_id = 456)` in R.
-Reconnecting retrieves an existing run without submitting another one. A wait
-timeout stops polling; it does not cancel the server's job.
+Save the run ID alongside your analysis notes; it is the same number shown on
+the **Jobs** page. You can reconnect later with `client.pipeline_run(123)` in
+Python or `client$pipeline_run(run_id = 123)` in R. Reconnecting retrieves an
+existing run without submitting another one. A wait timeout stops polling; it
+does not cancel the run on the server.
 
-:::note Update
+To send blocks only part of each plot, pass `data_products=["orthomosaic"]` or
+`modalities=["multispectral"]` to `run_pipeline`.
 
-Pipeline runs now share one ID with their operation. Newer SDK releases replace
-`run.pipeline_id` and `run.operation_id` with `run.id` (`run$id` in R), reconnect
-with `client.pipeline_run(123)` or `client$pipeline_run(run_id = 123)`, and move
-the CLI commands to `phenoworks pipeline-runs run|status|wait`.
+:::note[Updated October 2026]
+
+Pipeline runs share one ID with their operation, so the examples use `run.id`
+(`run$id` in R) instead of separate pipeline and operation IDs. SDK releases
+from before this change used `run.pipeline_id` and `run.operation_id`.
 
 :::
 
@@ -282,7 +294,7 @@ you can inspect your account or launch a pipeline from the shell:
 ```bash
 phenoworks auth me
 phenoworks datasets filter-by-modality thermal --param project_id=7
-phenoworks pipelines run --dataset-id 42 --file pipeline.json --wait
+phenoworks pipeline-runs run --dataset-id 42 --file pipeline.json --wait
 ```
 
 Run `phenoworks --help` to explore the available commands.

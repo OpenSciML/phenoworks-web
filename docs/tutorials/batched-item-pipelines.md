@@ -1,4 +1,4 @@
-# Run item-level pipelines in batches
+# Run Item-Level Pipelines in Batches
 
 Batching bounds the number of plots loaded and processed at once. It is opt-in:
 existing pipelines retain full-dataset execution unless their run parameters
@@ -10,10 +10,15 @@ Every executable block in a batched pipeline must declare:
 
 ```python
 extras = {
+    "supported_inputs": ["rgb:image"],
     "transform_scope": "dataset_item",
     "batch_independent": True,
 }
 ```
+
+`supported_inputs` does not affect batching; it is shown here because every
+block declares the files it reads (see
+[Build Custom LgoPy Blocks](build-custom-lgopy-blocks.md#runtime-properties-in-extras)).
 
 This is a promise by the block author that processing independent batches gives
 the same per-item analysis as processing all items together. Input shape alone
@@ -41,7 +46,7 @@ Include the setting in the pipeline request's existing `parameters` object:
 }
 ```
 
-The accepted range is 1–10,000 plots. The rest of the pipeline request is unchanged.
+The accepted range is 1–10,000 plots per batch. The rest of the pipeline request is unchanged.
 Every step is checked before dataset pages are fetched. An incompatible pipeline
 fails with an explanation; removing `batch_size` restores full-dataset execution.
 
@@ -67,7 +72,7 @@ not concatenate all results into an in-memory table or a single Excel workbook.
 ## Failure and file cleanup
 
 Before creating files, the runner persists a unique execution-attempt folder in
-the pipeline record. Every batch writes beneath that folder. If processing or a
+the pipeline run record. Every batch writes beneath that folder. If processing or a
 batch/final database commit fails, the runner marks the attempt for cleanup,
 deletes its entire folder—including partial files that never received database
 records—and removes its staged records.
@@ -77,8 +82,8 @@ failed/cancelled runs at startup. A retried interrupted run cleans its previous
 attempt before starting a new attempt. Retries currently restart from the first
 batch; checkpoints are for progress and recovery, not partial-run resume.
 Successful sibling attempts are never deleted by failed-attempt cleanup.
-Explicit pipeline deletion also removes its attempt folder before deleting the
-pipeline record. If its worker is still executing a batch, deletion preserves
+Deleting a pipeline run also removes its attempt folder before deleting the
+run record. If its worker is still executing a batch, deletion preserves
 the record and asks you to retry after the batch stops. This prevents losing
 cleanup ownership while a worker can still create files.
 
