@@ -60,6 +60,204 @@
             <category>Development</category>
         </item>
         <item>
+            <title><![CDATA[From Roadmap to Runtime: Model Packaging and Inference in PhenoWorks]]></title>
+            <link>https://phenoworks.org/blog/bentoml-model-workflows</link>
+            <guid>https://phenoworks.org/blog/bentoml-model-workflows</guid>
+            <pubDate>Mon, 12 Oct 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[How PhenoWorks now validates Bento packages, manages isolated model deployments, and connects stable model references to reusable LgoPy workflows.]]></description>
+            <content:encoded><![CDATA[<p>Last month, we outlined a
+<a class="" href="https://phenoworks.org/blog/model-packaging-and-inference-roadmap">roadmap for bringing trained models into LgoPy workflows</a>.
+That design has now reached its first working implementation in PhenoWorks.</p>
+<p>A researcher can register a packaged inference service, validate it, deploy it
+in an isolated container, and use it from an LgoPy block through an authenticated
+gateway. The block refers to a cataloged model version; it never needs to carry
+an endpoint, credential, or container detail in the analysis code.</p>
+<!-- -->
+<p>This is more than a new API route. The implementation gives catalog records,
+deployments, routing, and workflows separate contracts. The first release
+includes:</p>
+<ul>
+<li class="">Resumable Bento ZIP uploads and asynchronous structural validation.</li>
+<li class="">An internal catalog that separates immutable model packages from running
+deployments.</li>
+<li class="">Persisted background operations for deploy, stop, and delete actions.</li>
+<li class="">OCI image builds and isolated Bento containers on a self-hosted Docker host.</li>
+<li class="">Stable inference routes through Traefik and the PhenoWorks API.</li>
+<li class="">An authenticated gateway with request, response, header, and path controls.</li>
+<li class="">A portable LgoPy <code>ModelResolver</code> contract injected at execution time.</li>
+<li class="">Schema-driven model selection in the workflow interface.</li>
+</ul>
+<p>The scope is deliberately narrow: externally trained models, packaged as
+Bentos, running on a single Docker host. Training orchestration, autoscaling,
+Kubernetes scheduling, and cluster-wide GPU allocation are still future work.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="the-implemented-architecture">The implemented architecture<a href="https://phenoworks.org/blog/bentoml-model-workflows#the-implemented-architecture" class="hash-link" aria-label="Direct link to The implemented architecture" title="Direct link to The implemented architecture" translate="no">​</a></h2>
+<p>The architecture has two paths: one for managing services and another for using
+them during analysis.</p>
+<p><a href="https://phenoworks.org/assets/files/phenoworks-model-packaging-inference-architecture-cf15f81a8ed157dce75ba7313e885dd3.png" target="_blank" class=""><img decoding="async" loading="lazy" alt="PhenoWorks model architecture showing the Bento package, resumable upload, package validation, model catalog, deployment worker, OCI image, Bento service, saved workflow, model reference, run snapshot, LgoPy model resolver, inference gateway, and outputs." src="https://phenoworks.org/assets/images/phenoworks-model-packaging-inference-architecture-cf15f81a8ed157dce75ba7313e885dd3.png" width="1672" height="941" class="img_ev3q"></a></p>
+<p><em>The control path prepares and manages a model service. The inference path
+resolves that service for one LgoPy pipeline run and returns its outputs to the
+workflow.</em></p>
+<p>The paths meet at a deployment, but their responsibilities do not blur.
+Cataloging and deployment are asynchronous platform operations. Invocation is a
+run-scoped capability that LgoPy receives only after PhenoWorks has resolved the
+deployments available to that run.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="three-resources-three-lifecycles">Three resources, three lifecycles<a href="https://phenoworks.org/blog/bentoml-model-workflows#three-resources-three-lifecycles" class="hash-link" aria-label="Direct link to Three resources, three lifecycles" title="Direct link to Three resources, three lifecycles" translate="no">​</a></h2>
+<p>The implementation keeps a model package, a deployment, and a workflow
+reference separate:</p>
+<table><thead><tr><th>Resource</th><th>Responsibility</th></tr></thead><tbody><tr><td>Model package</td><td>Stores the immutable Bento archive, version, ownership, extracted metadata, validation state, and validation log.</td></tr><tr><td>Deployment</td><td>Records the package version, operation state, image and container identity, internal endpoint, readiness, and activity log.</td></tr><tr><td>Workflow model reference</td><td>Stores the stable catalog identity selected for a block without storing a container address or credential.</td></tr></tbody></table>
+<p>These distinctions matter in routine use. Uploading a package does not quietly
+start a container, and stopping a deployment does not erase the package that
+created it. A saved workflow can keep the same model reference even when an
+administrator later replaces the underlying container.</p>
+<p>PhenoWorks remains the source of truth for ownership, authorization, lifecycle,
+routing, and workflow use. BentoML contributes the portable service format and
+image-building machinery; its local model store is not the PhenoWorks catalog.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="a-minimal-bentoml-service">A minimal BentoML service<a href="https://phenoworks.org/blog/bentoml-model-workflows#a-minimal-bentoml-service" class="hash-link" aria-label="Direct link to A minimal BentoML service" title="Direct link to A minimal BentoML service" translate="no">​</a></h2>
+<p>A Bento starts with an ordinary Python service. For example, this small service
+turns two pixel counts into a canopy-cover estimate:</p>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockTitle_OeMC">service.py</div><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#F8F8F2"><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">import</span><span class="token plain"> bentoml</span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">from</span><span class="token plain"> pydantic </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">import</span><span class="token plain"> BaseModel</span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">class</span><span class="token plain"> </span><span class="token class-name">CanopySample</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">BaseModel</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">    green_pixels</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">int</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">    total_pixels</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">int</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">@bentoml</span><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">service</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">name</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">"canopy-cover"</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">class</span><span class="token plain"> </span><span class="token class-name">CanopyCover</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">@bentoml</span><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">api</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">def</span><span class="token plain"> </span><span class="token function" style="color:rgb(80, 250, 123)">predict</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">self</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> sample</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> CanopySample</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"> </span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">dict</span><span class="token punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token builtin" style="color:rgb(189, 147, 249)">str</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">float</span><span class="token punctuation" style="color:rgb(248, 248, 242)">]</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">        </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">if</span><span class="token plain"> sample</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">total_pixels </span><span class="token operator">&lt;=</span><span class="token plain"> </span><span class="token number">0</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">            </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">raise</span><span class="token plain"> ValueError</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token string" style="color:rgb(255, 121, 198)">"total_pixels must be greater than zero"</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">        </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">return</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token string" style="color:rgb(255, 121, 198)">"canopy_cover"</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> sample</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">green_pixels </span><span class="token operator">/</span><span class="token plain"> sample</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">total_pixels</span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><br></div></code></pre></div></div>
+<p>Its <code>bentofile.yaml</code> identifies the service and records the environment needed
+to run it:</p>
+<div class="language-yaml codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockTitle_OeMC">bentofile.yaml</div><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-yaml codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#F8F8F2"><span class="token key atrule">service</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">"service:CanopyCover"</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token key atrule">include</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token punctuation" style="color:rgb(248, 248, 242)">-</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">"service.py"</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token key atrule">python</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">  </span><span class="token key atrule">packages</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token punctuation" style="color:rgb(248, 248, 242)">-</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">"bentoml&gt;=1.4.39,&lt;1.5"</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token punctuation" style="color:rgb(248, 248, 242)">-</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">"pydantic&gt;=2,&lt;3"</span><br></div></code></pre></div></div>
+<p>From that directory, BentoML can build and export an archive that PhenoWorks can
+accept through the Models page:</p>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#F8F8F2"><span class="token plain">bentoml build --version 0.1.0</span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">bentoml export canopy-cover:0.1.0 canopy-cover-0.1.0.zip</span><br></div></code></pre></div></div>
+<p>Real services will usually load model artifacts and perform richer validation
+or preprocessing. The packaging boundary stays the same: the archive carries
+the serving code, its dependencies, and a typed inference API. PhenoWorks takes
+responsibility once that archive is uploaded.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="package-intake-and-validation">Package intake and validation<a href="https://phenoworks.org/blog/bentoml-model-workflows#package-intake-and-validation" class="hash-link" aria-label="Direct link to Package intake and validation" title="Direct link to Package intake and validation" translate="no">​</a></h2>
+<p>Package intake begins when the Models API registers an upload and returns a
+scoped permit for the resumable transfer service. Once the browser reports that
+the transfer is complete, PhenoWorks verifies the upload record and queues a
+background validation job. At no point does the API process import package
+code.</p>
+<p>Every archive is treated as untrusted data. Before allowing deployment, the
+validator checks:</p>
+<ul>
+<li class="">Archive paths, duplicate members, symbolic links, and encrypted entries.</li>
+<li class="">Compressed and expanded size limits and suspicious compression ratios.</li>
+<li class="">Required Bento files and the generated package structure.</li>
+<li class="">Service declarations and references to packaged model artifacts.</li>
+<li class="">Package name and version consistency.</li>
+</ul>
+<p>The generated <code>bento.yaml</code> is authoritative for the built service structure and
+version. Human-facing catalog fields—display name, authors, license, and
+description—come from the packaged <code>src/bentofile.yaml</code>. PhenoWorks persists
+the result as <code>pending</code>, <code>validating</code>, <code>valid</code>, or <code>invalid</code>, along with a log
+that can be inspected in the interface.</p>
+<p>Static validation does not prove that inference works. It only establishes that
+the archive is structurally acceptable before a deployment worker executes it.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="deployment-as-a-persisted-background-operation">Deployment as a persisted background operation<a href="https://phenoworks.org/blog/bentoml-model-workflows#deployment-as-a-persisted-background-operation" class="hash-link" aria-label="Direct link to Deployment as a persisted background operation" title="Direct link to Deployment as a persisted background operation" translate="no">​</a></h2>
+<p>Only a validated package can enter the deployment lifecycle. The API creates a
+deployment record and a durable operation; a catalog worker then claims the job
+and:</p>
+<ol>
+<li class="">Materializes the immutable archive from the upload store.</li>
+<li class="">Imports the Bento into the worker's Bento store.</li>
+<li class="">Builds a versioned OCI image.</li>
+<li class="">Records the image reference and digest.</li>
+<li class="">Starts a deployment-specific container.</li>
+<li class="">Waits for the service readiness endpoint.</li>
+<li class="">Marks the deployment available only after readiness succeeds.</li>
+</ol>
+<p>Each deployment has a stable database identifier and a deterministic container
+identity. The runtime enforces memory, CPU, process, platform, and shutdown
+limits. It also drops Linux capabilities, enables <code>no-new-privileges</code>, and
+connects the container to the internal model network without giving it platform
+credentials.</p>
+<p>Build, startup, readiness, and failure events accumulate in a durable log.
+Administrators can therefore examine what happened without relying on ephemeral
+worker output. Stop and delete also run in the background: stopping preserves
+history, while deletion removes the stopped container and image when the state
+machine permits it.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="stable-routing-without-exposing-containers">Stable routing without exposing containers<a href="https://phenoworks.org/blog/bentoml-model-workflows#stable-routing-without-exposing-containers" class="hash-link" aria-label="Direct link to Stable routing without exposing containers" title="Direct link to Stable routing without exposing containers" translate="no">​</a></h2>
+<p>The deployment worker labels each container for Traefik. A route such as
+<code>/deployments/{deployment_id}</code> reaches the model's Bento server after Traefik
+removes the prefix. Container names and addresses never become part of the
+public contract.</p>
+<p>External callers use the authenticated PhenoWorks route:</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#F8F8F2"><span class="token plain">/api/models/deployments/{deployment_id}/invoke/{inference_path}</span><br></div></code></pre></div></div>
+<p>Before opening an upstream request, the gateway confirms that the deployment is
+available. It then:</p>
+<ul>
+<li class="">Preserves the HTTP method, query string, body, and safe model-specific headers.</li>
+<li class="">Removes credentials, cookies, forwarding headers, and hop-by-hop headers.</li>
+<li class="">Blocks access to Bento control paths such as metrics, health, documentation,
+and OpenAPI endpoints.</li>
+<li class="">Enforces configured request and response size limits.</li>
+<li class="">Uses fixed internal routing instead of accepting an arbitrary upstream URL.</li>
+<li class="">Streams the model response and closes the upstream connection when complete.</li>
+</ul>
+<p>Timeouts and unavailable services become explicit gateway errors. Authentication
+and network policy consequently stay in PhenoWorks instead of being reimplemented
+inside every model service.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="a-small-portable-lgopy-contract">A small, portable LgoPy contract<a href="https://phenoworks.org/blog/bentoml-model-workflows#a-small-portable-lgopy-contract" class="hash-link" aria-label="Direct link to A small, portable LgoPy contract" title="Direct link to A small, portable LgoPy contract" translate="no">​</a></h2>
+<p>LgoPy does not need to understand package uploads or Docker management. It only
+defines the portable pieces a block needs: <code>ModelReference</code>, <code>ModelResponse</code>,
+and the <code>ModelResolver</code> protocol.</p>
+<p>A model-backed block depends on that protocol:</p>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#F8F8F2"><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">class</span><span class="token plain"> </span><span class="token class-name">ModelInference</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">Block</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">def</span><span class="token plain"> </span><span class="token function" style="color:rgb(80, 250, 123)">__init__</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">self</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> model</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> ModelReference</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"> </span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token plain"> </span><span class="token boolean">None</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">        </span><span class="token builtin" style="color:rgb(189, 147, 249)">super</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">__init__</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">        self</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">model </span><span class="token operator">=</span><span class="token plain"> model</span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">def</span><span class="token plain"> </span><span class="token function" style="color:rgb(80, 250, 123)">call</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">self</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> payload</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">dict</span><span class="token punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token builtin" style="color:rgb(189, 147, 249)">str</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">object</span><span class="token punctuation" style="color:rgb(248, 248, 242)">]</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"> </span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">dict</span><span class="token punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token builtin" style="color:rgb(189, 147, 249)">str</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> </span><span class="token builtin" style="color:rgb(189, 147, 249)">object</span><span class="token punctuation" style="color:rgb(248, 248, 242)">]</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">        response </span><span class="token operator">=</span><span class="token plain"> self</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">models</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">invoke</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">            self</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">model</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">            </span><span class="token string" style="color:rgb(255, 121, 198)">"predict"</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">            json</span><span class="token operator">=</span><span class="token punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token string" style="color:rgb(255, 121, 198)">"inputs"</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> payload</span><span class="token punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">        </span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">        response</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">raise_for_status</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"></span><br></div><div class="token-line" style="color:#F8F8F2"><span class="token plain">        </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">return</span><span class="token plain"> response</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">json</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><br></div></code></pre></div></div>
+<p>The block states which model it needs and translates its data into an inference
+request. It does not instantiate a PhenoWorks client, read an API key, or look
+up a container hostname. During development, the block can use a local HTTP
+resolver; in a managed pipeline, it receives the PhenoWorks resolver instead.</p>
+<p>The contract covers JSON, raw content, forms, multipart files, query parameters,
+and safe request headers. A framework-neutral response wrapper keeps FastAPI,
+HTTPX, and BentoML out of LgoPy core.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="resolution-happens-when-a-pipeline-run-starts">Resolution happens when a pipeline run starts<a href="https://phenoworks.org/blog/bentoml-model-workflows#resolution-happens-when-a-pipeline-run-starts" class="hash-link" aria-label="Direct link to Resolution happens when a pipeline run starts" title="Direct link to Resolution happens when a pipeline run starts" translate="no">​</a></h2>
+<p>During pipeline preparation, PhenoWorks builds a resolver for that run. It
+queries deployments in the <code>deployed</code> state, converts them to stable model
+references, and snapshots the mapping between each reference and its deployment
+identifier.</p>
+<p>The pipeline receives this snapshot alongside its artifact and metadata stores;
+blocks access it through <code>self.models</code>. If a model was not available when the
+run began, block code cannot reach it by substituting a different deployment
+identifier.</p>
+<p>For each invocation, the PhenoWorks resolver:</p>
+<ul>
+<li class="">Looks up the stable reference in the run's deployment allowlist.</li>
+<li class="">Normalizes and validates the requested inference path and HTTP method.</li>
+<li class="">Rejects credentials and private control paths supplied by the block.</li>
+<li class="">Sends the request through the fixed internal gateway origin.</li>
+<li class="">Applies configured request and response limits.</li>
+<li class="">Reuses a bounded HTTP connection pool for the run.</li>
+</ul>
+<p>That boundary keeps model execution portable without surrendering application
+control over authorization or runtime policy.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="the-model-picker-comes-from-the-block-schema">The model picker comes from the block schema<a href="https://phenoworks.org/blog/bentoml-model-workflows#the-model-picker-comes-from-the-block-schema" class="hash-link" aria-label="Direct link to The model picker comes from the block schema" title="Direct link to The model picker comes from the block schema" translate="no">​</a></h2>
+<p><code>ModelReference</code> is an annotated string with <code>format: model-reference</code> in its
+JSON schema. When the workflow interface sees that format, it renders a catalog
+selector rather than a free-text input.</p>
+<p>The selector lists only deployments returned by the available-models endpoint.
+The saved block configuration holds the stable reference; run preparation later
+resolves it against the deployment snapshot. In this way, one schema field ties
+together the interface, serialized workflow, and runtime contract without
+hard-coding any model family into the form.</p>
+<p>The available-model response also includes validated service metadata and each
+declared inference API. Filtering that list by the API a block requires is a
+useful next step. For now, the selector shows all available deployments.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="what-is-implemented-and-what-remains">What is implemented, and what remains<a href="https://phenoworks.org/blog/bentoml-model-workflows#what-is-implemented-and-what-remains" class="hash-link" aria-label="Direct link to What is implemented, and what remains" title="Direct link to What is implemented, and what remains" translate="no">​</a></h2>
+<p>The implemented feature covers the first single-host path from a Bento archive
+to a model-backed LgoPy workflow:</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#F8F8F2"><span class="token plain">upload → validate → deploy → discover → resolve → invoke → save outputs</span><br></div></code></pre></div></div>
+<p>The most consequential result is not any single endpoint. It is the set of
+explicit boundaries around package trust, deployment state, network access,
+workflow configuration, and runtime dependency injection. A new service can now
+follow the same catalog and execution path without adding model-specific
+deployment logic to PhenoWorks.</p>
+<p>The next stage is operational hardening, not another redesign. Priorities
+include stronger isolation during package builds, richer compatibility filters,
+complete model provenance in exported run reports, GPU-capacity coordination,
+restart and recovery tests, and more packaging templates.</p>
+<p>Training remains outside this feature. Researchers are free to use the training
+libraries and compute environment that suit their work, then package the
+inference method as a Bento. From upload onward, PhenoWorks manages how that
+service is validated, deployed, selected, invoked, and connected to a
+reproducible LgoPy workflow.</p>]]></content:encoded>
+            <category>Development</category>
+        </item>
+        <item>
             <title><![CDATA[Introducing the PhenoWorks SDKs for Python and R]]></title>
             <link>https://phenoworks.org/blog/python-and-r-sdks</link>
             <guid>https://phenoworks.org/blog/python-and-r-sdks</guid>
